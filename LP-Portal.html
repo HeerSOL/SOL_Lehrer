@@ -1505,8 +1505,8 @@
             });
         }
 
-        // Save Schedule
-        function saveSchedule() {
+        // Save Schedule to both localStorage and Firebase
+        async function saveSchedule() {
             const selects = document.querySelectorAll('.subject-select');
             scheduleData = {};
             
@@ -1521,9 +1521,20 @@
                 scheduleData[day][time] = subject;
             });
             
-            // Simulate saving
-            localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
-            showMessage('saveStatus', 'Stundenplan erfolgreich gespeichert!', false);
+            try {
+                // Save to Firebase
+                await set(ref(database, 'schedule'), scheduleData);
+                
+                // Also save to localStorage as backup
+                localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
+                
+                showMessage('saveStatus', 'Stundenplan erfolgreich gespeichert!', false);
+            } catch (error) {
+                console.error('Firebase-Fehler, speichere nur lokal:', error);
+                // Fallback to localStorage only
+                localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
+                showMessage('saveStatus', 'Stundenplan lokal gespeichert (Firebase-Verbindung nicht verfügbar)', false);
+            }
         }
 
         // Initialize Week Schedule
@@ -1632,8 +1643,8 @@
             });
         }
 
-        // Save Week Schedule
-        function saveWeekSchedule() {
+        // Save Week Schedule to both localStorage and Firebase
+        async function saveWeekSchedule() {
             weekData = {};
             
             // Collect all SOL data
@@ -1650,20 +1661,34 @@
                         const title = titleInput.value;
                         const description = descriptionInput.value;
                         
-                        if (subject || title || description) {
+                        if (subject || title || description || (window.weekData[weekKey] && window.weekData[weekKey].files)) {
                             weekData[weekKey] = {
                                 subject: subject,
                                 title: title,
-                                description: description
+                                description: description,
+                                files: (window.weekData[weekKey] && window.weekData[weekKey].files) || []
                             };
                         }
                     }
                 });
             });
             
-            // Simulate saving
-            localStorage.setItem('weekData', JSON.stringify(weekData));
-            showMessage('weekSaveStatus', 'Wochenplanung erfolgreich gespeichert!', false);
+            try {
+                // Save to Firebase
+                await set(ref(database, 'currentWeek'), weekData);
+                
+                // Also save to localStorage as backup
+                localStorage.setItem('weekData', JSON.stringify(weekData));
+                window.weekData = weekData;
+                
+                showMessage('weekSaveStatus', 'Wochenplanung erfolgreich gespeichert!', false);
+            } catch (error) {
+                console.error('Firebase-Fehler, speichere nur lokal:', error);
+                // Fallback to localStorage only
+                localStorage.setItem('weekData', JSON.stringify(weekData));
+                window.weekData = weekData;
+                showMessage('weekSaveStatus', 'Wochenplanung lokal gespeichert (Firebase-Verbindung nicht verfügbar)', false);
+            }
         }
 
         // Load Data
@@ -1853,23 +1878,51 @@
             }
             
             try {
-                // Create new task with file objects (for future Firebase Storage)
+                // Show loading message
+                showMessage('taskSaveStatus', 'Dateien werden hochgeladen...', false);
+                
+                const taskId = Date.now().toString();
+                const uploadedFiles = [];
+                
+                // Upload files to Firebase Storage
+                for (const file of selectedFiles) {
+                    const fileName = `${taskId}_${Date.now()}_${file.name}`;
+                    const fileStorageRef = storageRef(storage, `taskFiles/${fileName}`);
+                    
+                    try {
+                        await uploadBytes(fileStorageRef, file);
+                        const downloadURL = await getDownloadURL(fileStorageRef);
+                        
+                        uploadedFiles.push({
+                            name: file.name,
+                            url: downloadURL,
+                            id: fileName,
+                            size: file.size,
+                            type: file.type
+                        });
+                    } catch (uploadError) {
+                        console.error('Fehler beim Upload von', file.name, ':', uploadError);
+                        // Continue with other files even if one fails
+                    }
+                }
+                
+                // Create new task with uploaded files
                 const newTask = {
-                    id: Date.now(),
+                    id: taskId,
                     subject: subject,
                     title: title,
                     description: description,
                     basicRequirements: basicRequirements,
                     advancedRequirements: advancedRequirements,
                     createdAt: new Date().toLocaleDateString('de-DE'),
-                    files: selectedFiles.map(file => ({
-                        name: file.name,
-                        url: `#download-${file.name}`, // Placeholder URL for demo
-                        id: `file_${Date.now()}_${file.name}`
-                    })),
+                    files: uploadedFiles,
                     links: [...addedLinks]
                 };
                 
+                // Save task to Firebase Database
+                await set(ref(database, `tasks/${taskId}`), newTask);
+                
+                // Also save to localStorage for demo compatibility
                 currentTasks.push(newTask);
                 localStorage.setItem('currentTasks', JSON.stringify(currentTasks));
                 
@@ -1877,9 +1930,14 @@
                 closeTaskModal();
                 
                 // Show success message
-                showMessage('taskSaveStatus', 'Auftrag erfolgreich erstellt!', false);
+                const fileCount = uploadedFiles.length;
+                const message = fileCount > 0 
+                    ? `Auftrag mit ${fileCount} Datei(en) erfolgreich erstellt!`
+                    : 'Auftrag erfolgreich erstellt!';
+                showMessage('taskSaveStatus', message, false);
                 
             } catch (error) {
+                console.error('Fehler beim Erstellen des Auftrags:', error);
                 showMessage('taskSaveStatus', 'Fehler beim Erstellen des Auftrags: ' + error.message, true);
             }
         });
@@ -1981,13 +2039,45 @@
         }
 
         // Delete Task
-        function deleteTask(taskId) {
-            if (confirm('Möchten Sie diesen Auftrag wirklich löschen?')) {
-                currentTasks = currentTasks.filter(task => task.id !== taskId);
+        window.deleteTask = async (taskId) => {
+            if (!confirm('Möchten Sie diesen Auftrag wirklich von der Pinwand entfernen?')) {
+                return;
+            }
+            
+            try {
+                // Find task to get file references
+                const task = currentTasks.find(t => t.id == taskId);
+                if (task && task.files) {
+                    // Delete files from Firebase Storage
+                    for (const file of task.files) {
+                        try {
+                            const fileStorageRef = storageRef(storage, `taskFiles/${file.id}`);
+                            await deleteObject(fileStorageRef);
+                        } catch (error) {
+                            console.warn('Datei konnte nicht gelöscht werden:', error);
+                        }
+                    }
+                }
+                
+                // Delete task from Firebase Database
+                await set(ref(database, `tasks/${taskId}`), null);
+                
+                // Also remove from localStorage
+                currentTasks = currentTasks.filter(task => task.id != taskId);
+                localStorage.setItem('currentTasks', JSON.stringify(currentTasks));
+                
+                displayTasks();
+                showMessage('taskSaveStatus', 'Auftrag wurde von der Pinwand entfernt!', false);
+                
+            } catch (error) {
+                console.error('Fehler beim Löschen:', error);
+                // Fallback: delete from localStorage only
+                currentTasks = currentTasks.filter(task => task.id != taskId);
                 localStorage.setItem('currentTasks', JSON.stringify(currentTasks));
                 displayTasks();
+                showMessage('taskSaveStatus', 'Auftrag lokal entfernt (Firebase-Verbindung nicht verfügbar)', false);
             }
-        }
+        };
 
         // Utility function to show messages
         function showMessage(elementId, message, isError) {
