@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -275,6 +276,183 @@
             margin: 50px 0;
         }
 
+        /* Stundenplan-Tab Styles */
+        .week-schedule {
+            display: grid;
+            grid-template-columns: 120px repeat(5, 1fr);
+            gap: 1px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .schedule-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .schedule-time {
+            background: #f8fafc;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .schedule-cell {
+            background: white;
+            padding: 8px;
+            min-height: 80px;
+            position: relative;
+            border: 1px solid #e2e8f0;
+        }
+
+        .schedule-cell.non-sol {
+            background: #f7fafc;
+            color: #718096;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .schedule-cell.sol-editable {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .schedule-cell.sol-editable:hover {
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .sol-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sol-subject-select {
+            width: 100%;
+            padding: 4px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 11px;
+            background: white;
+        }
+
+        .sol-title-input {
+            width: 100%;
+            padding: 4px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 11px;
+            placeholder: "Titel (z.B. Input)";
+        }
+
+        .sol-description {
+            width: 100%;
+            padding: 4px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 10px;
+            resize: none;
+            height: 40px;
+            placeholder: "Beschreibung...";
+        }
+
+        .file-upload-section {
+            margin-top: 4px;
+        }
+
+        .file-upload-btn {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 9px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .file-upload-btn:hover {
+            background: #38a169;
+        }
+
+        .uploaded-files {
+            margin-top: 4px;
+            font-size: 9px;
+        }
+
+        .uploaded-file {
+            background: #e6fffa;
+            color: #234e52;
+            padding: 2px 4px;
+            border-radius: 2px;
+            margin: 1px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-file {
+            color: #e53e3e;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .week-save-btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 20px 0;
+        }
+
+        .week-save-btn:hover {
+            background: #5a67d8;
+        }
+
+        .week-header {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .week-schedule {
+                grid-template-columns: 80px repeat(5, 1fr);
+                font-size: 10px;
+            }
+            
+            .schedule-cell {
+                min-height: 60px;
+                padding: 4px;
+            }
+            
+            .sol-description {
+                height: 30px;
+            }
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -369,11 +547,17 @@
             </div>
 
             <div id="stundenplanTab" class="tab-content" style="display: none;">
-                <div class="placeholder-content">
-                    <h2>Stundenplanseite</h2>
-                    <p>Hier wird später der komplette Stundenplan angezeigt.</p>
-                    <p>Übersicht über alle Fächer und SOL-Stunden.</p>
+                <div class="week-header">
+                    <h2>Wochenplanung - Aktuelle Woche</h2>
+                    <p>Bearbeiten Sie SOL-Stunden für diese Woche. Andere Fächer bleiben unverändert.</p>
                 </div>
+                
+                <div class="week-schedule" id="weekSchedule">
+                    <!-- Wird dynamisch generiert -->
+                </div>
+                
+                <button class="week-save-btn" onclick="saveWeekSchedule()">Wochenplanung speichern</button>
+                <div id="weekSaveStatus" class="status-message" style="display: none;"></div>
             </div>
         </div>
     </div>
@@ -383,6 +567,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
         import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-storage.js";
 
         // Firebase Configuration
         const firebaseConfig = {
@@ -400,6 +585,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const database = getDatabase(app);
+        const storage = getStorage(app);
 
         // Zeit-Slots
         const timeSlots = [
@@ -444,7 +630,9 @@
         // Globale Variablen
         window.auth = auth;
         window.database = database;
+        window.storage = storage;
         window.scheduleData = {};
+        window.weekData = {};
 
         // Login Form Event
         document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
@@ -498,6 +686,11 @@
             
             // Add active class to selected tab button
             event.target.classList.add('active');
+            
+            // Load week schedule when switching to stundenplan tab
+            if (tabName === 'stundenplan') {
+                initializeWeekSchedule();
+            }
         };
 
         // Initialize Schedule Table
@@ -596,6 +789,257 @@
                 console.error('Fehler beim Laden der Daten:', error);
             }
         }
+
+        // Initialize Week Schedule
+        async function initializeWeekSchedule() {
+            try {
+                // Load master schedule first
+                const masterSnapshot = await get(child(ref(database), 'schedule'));
+                if (!masterSnapshot.exists()) {
+                    document.getElementById('weekSchedule').innerHTML = '<p>Bitte erstellen Sie zuerst einen Stundenplan in der Masterseite.</p>';
+                    return;
+                }
+                
+                const masterData = masterSnapshot.val();
+                
+                // Load current week data
+                const weekSnapshot = await get(child(ref(database), 'currentWeek'));
+                const weekData = weekSnapshot.exists() ? weekSnapshot.val() : {};
+                
+                // Generate week schedule
+                generateWeekSchedule(masterData, weekData);
+                
+            } catch (error) {
+                console.error('Fehler beim Laden der Wochendaten:', error);
+            }
+        }
+
+        // Generate Week Schedule Grid
+        function generateWeekSchedule(masterData, weekData) {
+            const container = document.getElementById('weekSchedule');
+            container.innerHTML = '';
+            
+            // Header row
+            const headerTime = document.createElement('div');
+            headerTime.className = 'schedule-header';
+            headerTime.textContent = 'Zeit';
+            container.appendChild(headerTime);
+            
+            weekdays.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'schedule-header';
+                header.textContent = day;
+                container.appendChild(header);
+            });
+            
+            // Time slots
+            timeSlots.forEach(time => {
+                // Time column
+                const timeCell = document.createElement('div');
+                timeCell.className = 'schedule-time';
+                timeCell.textContent = time.replace(' - ', '\n');
+                container.appendChild(timeCell);
+                
+                // Day columns
+                weekdays.forEach(day => {
+                    const cell = document.createElement('div');
+                    const masterSubject = masterData[day] && masterData[day][time] ? masterData[day][time] : '';
+                    
+                    if (masterSubject === 'SOL') {
+                        // SOL cell - editable
+                        cell.className = 'schedule-cell sol-editable';
+                        
+                        const weekKey = `${day}_${time}`;
+                        const weekInfo = weekData[weekKey] || {};
+                        
+                        cell.innerHTML = `
+                            <div class="sol-content">
+                                <select class="sol-subject-select" data-day="${day}" data-time="${time}">
+                                    <option value="">SOL (normal)</option>
+                                    ${subjects.filter(s => s.value && s.value !== 'SOL').map(subject => 
+                                        `<option value="${subject.value}" ${weekInfo.subject === subject.value ? 'selected' : ''}>${subject.text}</option>`
+                                    ).join('')}
+                                </select>
+                                <input type="text" class="sol-title-input" placeholder="Titel (z.B. Input)" 
+                                       value="${weekInfo.title || ''}" data-day="${day}" data-time="${time}">
+                                <textarea class="sol-description" placeholder="Beschreibung..." 
+                                          data-day="${day}" data-time="${time}">${weekInfo.description || ''}</textarea>
+                                <div class="file-upload-section">
+                                    <input type="file" id="file_${day}_${time}" style="display: none;" 
+                                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.ppt,.pptx"
+                                           onchange="handleFileUpload(this, '${day}', '${time}')">
+                                    <button class="file-upload-btn" onclick="document.getElementById('file_${day}_${time}').click()">
+                                        📎 Datei
+                                    </button>
+                                    <div class="uploaded-files" id="files_${day}_${time}">
+                                        ${(weekInfo.files || []).map(file => 
+                                            `<div class="uploaded-file">
+                                                <span>${file.name}</span>
+                                                <span class="delete-file" onclick="deleteFile('${day}', '${time}', '${file.id}')">×</span>
+                                            </div>`
+                                        ).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Apply subject color if selected
+                        const select = cell.querySelector('.sol-subject-select');
+                        if (weekInfo.subject) {
+                            const selectedSubject = subjects.find(s => s.value === weekInfo.subject);
+                            if (selectedSubject) {
+                                cell.classList.add(selectedSubject.class);
+                            }
+                        }
+                        
+                        // Add change event for subject selection
+                        select.addEventListener('change', function() {
+                            // Remove all subject classes
+                            subjects.forEach(s => cell.classList.remove(s.class));
+                            
+                            // Add new subject class
+                            if (this.value) {
+                                const selectedSubject = subjects.find(s => s.value === this.value);
+                                if (selectedSubject) {
+                                    cell.classList.add(selectedSubject.class);
+                                }
+                            }
+                        });
+                        
+                    } else {
+                        // Non-SOL cell - display only
+                        cell.className = 'schedule-cell non-sol';
+                        
+                        if (masterSubject) {
+                            const subjectData = subjects.find(s => s.value === masterSubject);
+                            if (subjectData) {
+                                cell.classList.add(subjectData.class);
+                                cell.textContent = masterSubject;
+                            }
+                        } else {
+                            cell.textContent = '-';
+                        }
+                    }
+                    
+                    container.appendChild(cell);
+                });
+            });
+        }
+
+        // Handle File Upload
+        window.handleFileUpload = async (input, day, time) => {
+            const file = input.files[0];
+            if (!file) return;
+            
+            try {
+                const fileName = `${Date.now()}_${file.name}`;
+                const fileStorageRef = storageRef(storage, `weekFiles/${fileName}`);
+                
+                await uploadBytes(fileStorageRef, file);
+                const downloadURL = await getDownloadURL(fileStorageRef);
+                
+                // Add file to week data
+                const weekKey = `${day}_${time}`;
+                if (!window.weekData[weekKey]) {
+                    window.weekData[weekKey] = {};
+                }
+                if (!window.weekData[weekKey].files) {
+                    window.weekData[weekKey].files = [];
+                }
+                
+                window.weekData[weekKey].files.push({
+                    id: fileName,
+                    name: file.name,
+                    url: downloadURL
+                });
+                
+                // Update display
+                const filesContainer = document.getElementById(`files_${day}_${time}`);
+                const fileDiv = document.createElement('div');
+                fileDiv.className = 'uploaded-file';
+                fileDiv.innerHTML = `
+                    <span>${file.name}</span>
+                    <span class="delete-file" onclick="deleteFile('${day}', '${time}', '${fileName}')">×</span>
+                `;
+                filesContainer.appendChild(fileDiv);
+                
+                // Clear input
+                input.value = '';
+                
+            } catch (error) {
+                console.error('Fehler beim Datei-Upload:', error);
+                alert('Fehler beim Hochladen der Datei: ' + error.message);
+            }
+        };
+
+        // Delete File
+        window.deleteFile = async (day, time, fileId) => {
+            try {
+                // Delete from storage
+                const fileStorageRef = storageRef(storage, `weekFiles/${fileId}`);
+                await deleteObject(fileStorageRef);
+                
+                // Remove from week data
+                const weekKey = `${day}_${time}`;
+                if (window.weekData[weekKey] && window.weekData[weekKey].files) {
+                    window.weekData[weekKey].files = window.weekData[weekKey].files.filter(f => f.id !== fileId);
+                }
+                
+                // Update display
+                const filesContainer = document.getElementById(`files_${day}_${time}`);
+                const fileElements = filesContainer.querySelectorAll('.uploaded-file');
+                fileElements.forEach(el => {
+                    if (el.innerHTML.includes(fileId)) {
+                        el.remove();
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Fehler beim Löschen der Datei:', error);
+            }
+        };
+
+        // Save Week Schedule
+        window.saveWeekSchedule = async () => {
+            try {
+                const weekData = {};
+                
+                // Collect all SOL data
+                timeSlots.forEach(time => {
+                    weekdays.forEach(day => {
+                        const weekKey = `${day}_${time}`;
+                        
+                        const subjectSelect = document.querySelector(`[data-day="${day}"][data-time="${time}"].sol-subject-select`);
+                        const titleInput = document.querySelector(`[data-day="${day}"][data-time="${time}"].sol-title-input`);
+                        const descriptionInput = document.querySelector(`[data-day="${day}"][data-time="${time}"].sol-description`);
+                        
+                        if (subjectSelect) {
+                            const subject = subjectSelect.value;
+                            const title = titleInput.value;
+                            const description = descriptionInput.value;
+                            
+                            if (subject || title || description || (window.weekData[weekKey] && window.weekData[weekKey].files)) {
+                                weekData[weekKey] = {
+                                    subject: subject,
+                                    title: title,
+                                    description: description,
+                                    files: (window.weekData[weekKey] && window.weekData[weekKey].files) || []
+                                };
+                            }
+                        }
+                    });
+                });
+                
+                // Save to database
+                await set(ref(database, 'currentWeek'), weekData);
+                window.weekData = weekData;
+                
+                showMessage('weekSaveStatus', 'Wochenplanung erfolgreich gespeichert!', false);
+                
+            } catch (error) {
+                showMessage('weekSaveStatus', 'Fehler beim Speichern: ' + error.message, true);
+            }
+        };
 
         // Utility function to show messages
         function showMessage(elementId, message, isError) {
