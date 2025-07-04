@@ -1879,29 +1879,25 @@
             
             try {
                 // Show loading message
-                showMessage('taskSaveStatus', 'Dateien werden hochgeladen...', false);
+                showMessage('taskSaveStatus', 'Dateien werden verarbeitet...', false);
                 
                 const taskId = Date.now().toString();
                 const uploadedFiles = [];
                 
-                // Upload files to Firebase Storage
+                // Convert files to Base64 and save to database
                 for (const file of selectedFiles) {
-                    const fileName = `${taskId}_${Date.now()}_${file.name}`;
-                    const fileStorageRef = storageRef(storage, `taskFiles/${fileName}`);
-                    
                     try {
-                        await uploadBytes(fileStorageRef, file);
-                        const downloadURL = await getDownloadURL(fileStorageRef);
+                        const base64Data = await fileToBase64(file);
                         
                         uploadedFiles.push({
                             name: file.name,
-                            url: downloadURL,
-                            id: fileName,
+                            data: base64Data,
                             size: file.size,
-                            type: file.type
+                            type: file.type,
+                            id: `${taskId}_${Date.now()}_${file.name}`
                         });
                     } catch (uploadError) {
-                        console.error('Fehler beim Upload von', file.name, ':', uploadError);
+                        console.error('Fehler beim Verarbeiten von', file.name, ':', uploadError);
                         // Continue with other files even if one fails
                     }
                 }
@@ -1941,6 +1937,16 @@
                 showMessage('taskSaveStatus', 'Fehler beim Erstellen des Auftrags: ' + error.message, true);
             }
         });
+
+        // Convert file to Base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
 
         // Display Tasks on Pinboard
         function displayTasks() {
@@ -2002,7 +2008,7 @@
                             <h4>Materialien</h4>
                             <div class="material-tags">
                                 ${task.files.map(file => 
-                                    `<a href="${file.url}" target="_blank" class="material-tag" title="Datei herunterladen">${getFileIcon(file.name)} ${file.name}</a>`
+                                    `<a href="#" onclick="downloadFile('${file.data}', '${file.name}', '${file.type}')" class="material-tag" title="Datei herunterladen">${getFileIcon(file.name)} ${file.name}</a>`
                                 ).join('')}
                                 ${task.links.map(link => 
                                     `<a href="${link}" target="_blank" class="material-tag">🔗 ${new URL(link).hostname}</a>`
@@ -2045,20 +2051,6 @@
             }
             
             try {
-                // Find task to get file references
-                const task = currentTasks.find(t => t.id == taskId);
-                if (task && task.files) {
-                    // Delete files from Firebase Storage
-                    for (const file of task.files) {
-                        try {
-                            const fileStorageRef = storageRef(storage, `taskFiles/${file.id}`);
-                            await deleteObject(fileStorageRef);
-                        } catch (error) {
-                            console.warn('Datei konnte nicht gelöscht werden:', error);
-                        }
-                    }
-                }
-                
                 // Delete task from Firebase Database
                 await set(ref(database, `tasks/${taskId}`), null);
                 
@@ -2076,6 +2068,33 @@
                 localStorage.setItem('currentTasks', JSON.stringify(currentTasks));
                 displayTasks();
                 showMessage('taskSaveStatus', 'Auftrag lokal entfernt (Firebase-Verbindung nicht verfügbar)', false);
+            }
+        };
+
+        // Download file from Base64 data
+        window.downloadFile = function(base64Data, fileName, fileType) {
+            try {
+                // Convert base64 to blob
+                const byteCharacters = atob(base64Data.split(',')[1]);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], { type: fileType });
+                
+                // Create download link
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Fehler beim Download:', error);
+                alert('Fehler beim Herunterladen der Datei');
             }
         };
 
