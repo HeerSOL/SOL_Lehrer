@@ -1838,7 +1838,7 @@
         }
 
         // Task Form Submit
-        document.getElementById('taskForm').addEventListener('submit', function(e) {
+        document.getElementById('taskForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const subject = document.getElementById('taskSubject').value;
@@ -1852,27 +1852,36 @@
                 return;
             }
             
-            // Create new task
-            const newTask = {
-                id: Date.now(),
-                subject: subject,
-                title: title,
-                description: description,
-                basicRequirements: basicRequirements,
-                advancedRequirements: advancedRequirements,
-                createdAt: new Date().toLocaleDateString('de-DE'),
-                files: selectedFiles.map(f => f.name),
-                links: [...addedLinks]
-            };
-            
-            currentTasks.push(newTask);
-            localStorage.setItem('currentTasks', JSON.stringify(currentTasks));
-            
-            displayTasks();
-            closeTaskModal();
-            
-            // Show success message
-            showMessage('taskSaveStatus', 'Auftrag erfolgreich erstellt!', false);
+            try {
+                // Create new task with file objects (for future Firebase Storage)
+                const newTask = {
+                    id: Date.now(),
+                    subject: subject,
+                    title: title,
+                    description: description,
+                    basicRequirements: basicRequirements,
+                    advancedRequirements: advancedRequirements,
+                    createdAt: new Date().toLocaleDateString('de-DE'),
+                    files: selectedFiles.map(file => ({
+                        name: file.name,
+                        url: `#download-${file.name}`, // Placeholder URL for demo
+                        id: `file_${Date.now()}_${file.name}`
+                    })),
+                    links: [...addedLinks]
+                };
+                
+                currentTasks.push(newTask);
+                localStorage.setItem('currentTasks', JSON.stringify(currentTasks));
+                
+                displayTasks();
+                closeTaskModal();
+                
+                // Show success message
+                showMessage('taskSaveStatus', 'Auftrag erfolgreich erstellt!', false);
+                
+            } catch (error) {
+                showMessage('taskSaveStatus', 'Fehler beim Erstellen des Auftrags: ' + error.message, true);
+            }
         });
 
         // Display Tasks on Pinboard
@@ -1935,7 +1944,7 @@
                             <h4>Materialien</h4>
                             <div class="material-tags">
                                 ${task.files.map(file => 
-                                    `<span class="material-tag">${getFileIcon(file)} ${file}</span>`
+                                    `<a href="${file.url}" target="_blank" class="material-tag" title="Datei herunterladen">${getFileIcon(file.name)} ${file.name}</a>`
                                 ).join('')}
                                 ${task.links.map(link => 
                                     `<a href="${link}" target="_blank" class="material-tag">🔗 ${new URL(link).hostname}</a>`
