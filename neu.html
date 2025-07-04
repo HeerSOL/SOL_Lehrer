@@ -516,7 +516,89 @@
             margin-bottom: 20px;
         }
 
-        /* Modal Styles */
+        /* Requirements Section Styles */
+        .requirements-section {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .requirements-section h3 {
+            margin: 0 0 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .requirements-section .form-group {
+            margin-bottom: 15px;
+        }
+
+        .requirements-section .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .requirements-section small {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        /* Pin Card Requirements Styles */
+        .pin-requirements {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .requirement-block {
+            margin-bottom: 12px;
+        }
+
+        .requirement-block:last-child {
+            margin-bottom: 0;
+        }
+
+        .requirement-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+
+        .requirement-label.basic {
+            color: #2d5016;
+        }
+
+        .requirement-label.advanced {
+            color: #744210;
+        }
+
+        .requirement-text {
+            font-size: 12px;
+            color: #4a5568;
+            line-height: 1.4;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: #f7fafc;
+            border-left: 3px solid #cbd5e0;
+        }
+
+        .requirement-text.basic {
+            background: #f0fff4;
+            border-left-color: #48bb78;
+        }
+
+        .requirement-text.advanced {
+            background: #fffaf0;
+            border-left-color: #ed8936;
+        }
         .modal {
             display: none;
             position: fixed;
@@ -973,6 +1055,23 @@
                     <div class="form-group">
                         <label for="taskDescription">Beschreibung des Auftrags *</label>
                         <textarea id="taskDescription" rows="4" placeholder="Detaillierte Beschreibung des Auftrags..." required></textarea>
+                    </div>
+
+                    <!-- Anforderungen Section -->
+                    <div class="requirements-section">
+                        <h3 style="color: #4a5568; margin-bottom: 15px;">📋 Anforderungen</h3>
+                        
+                        <div class="form-group">
+                            <label for="basicRequirements">Grundanforderungen *</label>
+                            <textarea id="basicRequirements" rows="3" placeholder="Was müssen alle Schüler mindestens schaffen?" required></textarea>
+                            <small style="color: #718096;">Diese Anforderungen müssen von allen Schülern erfüllt werden.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="advancedRequirements">Erweiterte Anforderungen</label>
+                            <textarea id="advancedRequirements" rows="3" placeholder="Zusätzliche Herausforderungen für schnellere Schüler..."></textarea>
+                            <small style="color: #718096;">Optionale Zusatzaufgaben für Schüler, die schneller fertig sind.</small>
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -1452,8 +1551,10 @@
             const subject = document.getElementById('taskSubject').value;
             const title = document.getElementById('taskTitle').value;
             const description = document.getElementById('taskDescription').value;
+            const basicRequirements = document.getElementById('basicRequirements').value;
+            const advancedRequirements = document.getElementById('advancedRequirements').value;
             
-            if (!subject || !title || !description) {
+            if (!subject || !title || !description || !basicRequirements) {
                 alert('Bitte füllen Sie alle Pflichtfelder aus.');
                 return;
             }
@@ -1464,6 +1565,8 @@
                 subject: subject,
                 title: title,
                 description: description,
+                basicRequirements: basicRequirements,
+                advancedRequirements: advancedRequirements,
                 createdAt: new Date().toLocaleDateString('de-DE'),
                 files: selectedFiles.map(f => f.name),
                 links: [...addedLinks]
@@ -1510,6 +1613,29 @@
                     </div>
                     <h3 class="pin-title">${task.title}</h3>
                     <p class="pin-description">${task.description}</p>
+                    
+                    <!-- Anforderungen Section -->
+                    <div class="pin-requirements">
+                        <div class="requirement-block">
+                            <div class="requirement-label basic">
+                                ✅ Grundanforderungen
+                            </div>
+                            <div class="requirement-text basic">
+                                ${task.basicRequirements}
+                            </div>
+                        </div>
+                        
+                        ${task.advancedRequirements ? `
+                            <div class="requirement-block">
+                                <div class="requirement-label advanced">
+                                    ⭐ Erweiterte Anforderungen
+                                </div>
+                                <div class="requirement-text advanced">
+                                    ${task.advancedRequirements}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
                     
                     ${task.files.length > 0 || task.links.length > 0 ? `
                         <div class="pin-materials">
