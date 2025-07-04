@@ -599,6 +599,198 @@
             background: #fffaf0;
             border-left-color: #ed8936;
         }
+
+        /* User Management Styles */
+        .user-management-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .user-management-header h2 {
+            color: #4a5568;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .user-form-container {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .user-form-container h3 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .users-list-container {
+            margin-top: 40px;
+        }
+
+        .users-list-container h3 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .users-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: #cbd5e0;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .users-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .user-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .user-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .user-card.teacher {
+            border-left: 4px solid #48bb78;
+        }
+
+        .user-card.student {
+            border-left: 4px solid #4299e1;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .user-avatar.teacher {
+            background: #48bb78;
+        }
+
+        .user-avatar.student {
+            background: #4299e1;
+        }
+
+        .user-details h4 {
+            margin: 0 0 5px 0;
+            color: #2d3748;
+            font-size: 1.1rem;
+        }
+
+        .user-details p {
+            margin: 0;
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .user-badge {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .user-badge.teacher {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .user-badge.student {
+            background: #bee3f8;
+            color: #2a69ac;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .user-action-btn {
+            background: none;
+            border: 1px solid #e2e8f0;
+            color: #4a5568;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .user-action-btn:hover {
+            background: #f7fafc;
+        }
+
+        .user-action-btn.delete {
+            color: #e53e3e;
+            border-color: #fed7d7;
+        }
+
+        .user-action-btn.delete:hover {
+            background: #fed7d7;
+        }
         .modal {
             display: none;
             position: fixed;
@@ -950,6 +1142,7 @@
                 <button class="tab active" onclick="showTab('master')">Masterseite</button>
                 <button class="tab" onclick="showTab('aufgaben')">Aufgabenseite</button>
                 <button class="tab" onclick="showTab('stundenplan')">Stundenplanseite</button>
+                <button class="tab" onclick="showTab('benutzer')">Benutzerverwaltung</button>
             </div>
 
             <!-- Tab Content -->
@@ -1012,6 +1205,68 @@
                 
                 <button class="save-btn" onclick="saveWeekSchedule()">Wochenplanung speichern</button>
                 <div id="weekSaveStatus" class="status-message" style="display: none;"></div>
+            </div>
+
+            <div id="benutzerTab" class="tab-content" style="display: none;">
+                <div class="user-management-header">
+                    <h2>👥 Benutzerverwaltung</h2>
+                    <p>Verwalten Sie Lehrer- und Schüleraccounts</p>
+                </div>
+
+                <!-- Neuen Benutzer erstellen -->
+                <div class="user-form-container">
+                    <h3>➕ Neuen Benutzer hinzufügen</h3>
+                    <form id="userForm" class="user-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="userName">Name *</label>
+                                <input type="text" id="userName" placeholder="z.B. Max Mustermann" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="userEmail">E-Mail *</label>
+                                <input type="email" id="userEmail" placeholder="z.B. max.mustermann@schule.ch" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="userRole">Rolle *</label>
+                                <select id="userRole" required>
+                                    <option value="">Bitte wählen...</option>
+                                    <option value="teacher">👨‍🏫 Lehrperson</option>
+                                    <option value="student">👨‍🎓 Schüler/in</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="userPassword">Passwort *</label>
+                                <input type="password" id="userPassword" placeholder="Mindestens 6 Zeichen" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" id="studentClassGroup" style="display: none;">
+                            <label for="userClass">Klasse</label>
+                            <input type="text" id="userClass" placeholder="z.B. 7a, 8b">
+                            <small style="color: #718096;">Optional: Klassenzuteilung für Schüler</small>
+                        </div>
+                        
+                        <button type="submit" class="save-btn">Benutzer erstellen</button>
+                    </form>
+                </div>
+
+                <!-- Bestehende Benutzer -->
+                <div class="users-list-container">
+                    <h3>📋 Bestehende Benutzer</h3>
+                    <div class="users-filter">
+                        <button class="filter-btn active" onclick="filterUsers('all')">Alle</button>
+                        <button class="filter-btn" onclick="filterUsers('teacher')">👨‍🏫 Lehrpersonen</button>
+                        <button class="filter-btn" onclick="filterUsers('student')">👨‍🎓 Schüler</button>
+                    </div>
+                    <div id="usersList" class="users-list">
+                        <!-- Wird dynamisch gefüllt -->
+                    </div>
+                </div>
+
+                <div id="userSaveStatus" class="status-message" style="display: none;"></div>
             </div>
         </div>
 
@@ -1153,6 +1408,8 @@
         let selectedFiles = [];
         let addedLinks = [];
         let isLoggedIn = false;
+        let currentUsers = [];
+        let userFilter = 'all';
 
         // Login Simulation
         document.getElementById('loginFormElement').addEventListener('submit', function(e) {
@@ -1193,6 +1450,11 @@
             
             if (tabName === 'aufgaben') {
                 displayTasks();
+            }
+
+            if (tabName === 'benutzer') {
+                loadUsers();
+                initializeUserForm();
             }
         }
 
@@ -1437,6 +1699,37 @@
             if (savedTasks) {
                 currentTasks = JSON.parse(savedTasks);
             }
+
+            // Load users
+            const savedUsers = localStorage.getItem('currentUsers');
+            if (savedUsers) {
+                currentUsers = JSON.parse(savedUsers);
+            } else {
+                // Create default users if none exist
+                createDefaultUsers();
+            }
+        }
+
+        // Create default users
+        function createDefaultUsers() {
+            currentUsers = [
+                {
+                    id: 'teacher_1',
+                    name: 'Lehrer Test',
+                    email: 'lehrer@test.ch',
+                    role: 'teacher',
+                    createdAt: new Date().toLocaleDateString('de-DE')
+                },
+                {
+                    id: 'student_1', 
+                    name: 'Schüler Test',
+                    email: 'schueler@test.ch',
+                    role: 'student',
+                    class: '7a',
+                    createdAt: new Date().toLocaleDateString('de-DE')
+                }
+            ];
+            localStorage.setItem('currentUsers', JSON.stringify(currentUsers));
         }
 
         // Modal Functions
@@ -1714,6 +2007,179 @@
                 closeTaskModal();
             }
         });
+
+        // User Management Functions
+        function initializeUserForm() {
+            const userForm = document.getElementById('userForm');
+            const roleSelect = document.getElementById('userRole');
+            const classGroup = document.getElementById('studentClassGroup');
+
+            // Show/hide class field based on role
+            roleSelect.addEventListener('change', function() {
+                if (this.value === 'student') {
+                    classGroup.style.display = 'block';
+                } else {
+                    classGroup.style.display = 'none';
+                }
+            });
+
+            // Form submission
+            userForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                createUser();
+            });
+        }
+
+        function createUser() {
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const role = document.getElementById('userRole').value;
+            const password = document.getElementById('userPassword').value;
+            const userClass = document.getElementById('userClass').value;
+
+            if (!name || !email || !role || !password) {
+                alert('Bitte füllen Sie alle Pflichtfelder aus.');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('Das Passwort muss mindestens 6 Zeichen lang sein.');
+                return;
+            }
+
+            // Check if email already exists
+            if (currentUsers.find(user => user.email === email)) {
+                alert('Ein Benutzer mit dieser E-Mail existiert bereits.');
+                return;
+            }
+
+            // Create new user
+            const newUser = {
+                id: Date.now().toString(),
+                name: name,
+                email: email,
+                role: role,
+                password: password, // In real app, this would be hashed
+                class: role === 'student' ? userClass : undefined,
+                createdAt: new Date().toLocaleDateString('de-DE')
+            };
+
+            currentUsers.push(newUser);
+            localStorage.setItem('currentUsers', JSON.stringify(currentUsers));
+
+            // Clear form
+            document.getElementById('userForm').reset();
+            document.getElementById('studentClassGroup').style.display = 'none';
+
+            // Refresh user list
+            displayUsers();
+
+            // Show success message
+            showMessage('userSaveStatus', `${role === 'teacher' ? 'Lehrperson' : 'Schüler/in'} erfolgreich erstellt!`, false);
+        }
+
+        function loadUsers() {
+            displayUsers();
+        }
+
+        function displayUsers() {
+            const usersList = document.getElementById('usersList');
+            
+            if (currentUsers.length === 0) {
+                usersList.innerHTML = '<p style="text-align: center; color: #a0aec0;">Noch keine Benutzer erstellt.</p>';
+                return;
+            }
+
+            // Filter users
+            let filteredUsers = currentUsers;
+            if (userFilter !== 'all') {
+                filteredUsers = currentUsers.filter(user => user.role === userFilter);
+            }
+
+            usersList.innerHTML = '';
+
+            filteredUsers.forEach(user => {
+                const userCard = document.createElement('div');
+                userCard.className = `user-card ${user.role}`;
+                
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                
+                userCard.innerHTML = `
+                    <div class="user-info">
+                        <div class="user-avatar ${user.role}">
+                            ${initials}
+                        </div>
+                        <div class="user-details">
+                            <h4>${user.name}</h4>
+                            <p>${user.email}${user.class ? ` • Klasse ${user.class}` : ''}</p>
+                            <small style="color: #a0aec0;">Erstellt: ${user.createdAt}</small>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span class="user-badge ${user.role}">
+                            ${user.role === 'teacher' ? '👨‍🏫 Lehrperson' : '👨‍🎓 Schüler/in'}
+                        </span>
+                        <div class="user-actions">
+                            <button class="user-action-btn" onclick="editUser('${user.id}')" title="Bearbeiten">
+                                ✏️
+                            </button>
+                            <button class="user-action-btn delete" onclick="deleteUser('${user.id}')" title="Löschen">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                usersList.appendChild(userCard);
+            });
+        }
+
+        function filterUsers(filter) {
+            userFilter = filter;
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            displayUsers();
+        }
+
+        function editUser(userId) {
+            const user = currentUsers.find(u => u.id === userId);
+            if (!user) return;
+
+            // Fill form with user data
+            document.getElementById('userName').value = user.name;
+            document.getElementById('userEmail').value = user.email;
+            document.getElementById('userRole').value = user.role;
+            document.getElementById('userPassword').value = user.password;
+            
+            if (user.role === 'student') {
+                document.getElementById('userClass').value = user.class || '';
+                document.getElementById('studentClassGroup').style.display = 'block';
+            }
+
+            // Scroll to form
+            document.querySelector('.user-form-container').scrollIntoView({ behavior: 'smooth' });
+            
+            // Remove old user (will be re-added when form is submitted)
+            deleteUser(userId, false);
+        }
+
+        function deleteUser(userId, confirm = true) {
+            if (confirm && !window.confirm('Möchten Sie diesen Benutzer wirklich löschen?')) {
+                return;
+            }
+
+            currentUsers = currentUsers.filter(user => user.id !== userId);
+            localStorage.setItem('currentUsers', JSON.stringify(currentUsers));
+            
+            displayUsers();
+            
+            if (confirm) {
+                showMessage('userSaveStatus', 'Benutzer erfolgreich gelöscht!', false);
+            }
+        }
     </script>
 </body>
 </html>
