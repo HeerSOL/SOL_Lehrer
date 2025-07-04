@@ -1,5 +1,295 @@
+// Initialize Week Schedule
+        async function initializeWeekSchedule() {
+            try {
+                // Load master schedule first
+                const masterSnapshot = await get(child(ref(database), 'schedule'));
+                if (!masterSnapshot.exists()) {
+                    document.getElementById('weekSchedule').innerHTML = '<p>Bitte erstellen Sie zuerst einen Stundenplan in der Masterseite.</p>';
+                    return;
+                }
+                
+                const masterData = masterSnapshot.val();
+                
+                // Load current week data
+                const weekSnapshot = await get(child(ref(database), 'currentWeek'));
+                const weekData = weekSnapshot.exists() ? weekSnapshot.val() : {};
+                
+                // Generate week schedule
+                generateWeekSchedule(masterData, weekData);
+                
+            } catch (error) {
+                console.error('Fehler beim Laden der Wochendaten:', error);
+            }
+        }
 
-<!DOCTYPE html>
+        // Initialize Week Schedule
+        async function initializeWeekSchedule() {
+            try {
+                // Load master schedule first
+                const masterSnapshot = await get(child(ref(database), 'schedule'));
+                if (!masterSnapshot.exists()) {
+                    document.getElementById('weekSchedule').innerHTML = '<p>Bitte erstellen Sie zuerst einen Stundenplan in der Masterseite.</p>';
+                    return;
+                }
+                
+                const masterData = masterSnapshot.val();
+                
+                // Load current week data
+                const weekSnapshot = await get(child(ref(database), 'currentWeek'));
+                const weekData = weekSnapshot.exists() ? weekSnapshot.val() : {};
+                
+                // Generate week schedule
+                generateWeekSchedule(masterData, weekData);
+                
+            } catch (error) {
+                console.error('Fehler beim Laden der Wochendaten:', error);
+            }
+        }
+
+        // Generate Week Schedule Grid
+        function generateWeekSchedule(masterData, weekData) {
+            const container = document.getElementById('weekSchedule');
+            container.innerHTML = '';
+            
+            // Header row
+            const headerTime = document.createElement('div');
+            headerTime.className = 'schedule-header';
+            headerTime.textContent = 'Zeit';
+            container.appendChild(headerTime);
+            
+            weekdays.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'schedule-header';
+                header.textContent = day;
+                container.appendChild(header);
+            });
+            
+            // Time slots
+            timeSlots.forEach(time => {
+                // Time column
+                const timeCell = document.createElement('div');
+                timeCell.className = 'schedule-time';
+                timeCell.textContent = time.replace(' - ', '\n');
+                container.appendChild(timeCell);
+                
+                // Day columns
+                weekdays.forEach(day => {
+                    const cell = document.createElement('div');
+                    const masterSubject = masterData[day] && masterData[day][time] ? masterData[day][time] : '';
+                    
+                    if (masterSubject === 'SOL') {
+                        // SOL cell - editable
+                        cell.className = 'schedule-cell sol-editable';
+                        
+                        const weekKey = `${day}_${time}`;
+                        const weekInfo = weekData[weekKey] || {};
+                        
+                        cell.innerHTML = `
+                            <div class="sol-content">
+                                <select class="sol-subject-select" data-day="${day}" data-time="${time}">
+                                    <option value="">SOL (normal)</option>
+                                    ${subjects.filter(s => s.value && s.value !== 'SOL').map(subject => 
+                                        `<option value="${subject.value}" ${weekInfo.subject === subject.value ? 'selected' : ''}>${subject.text}</option>`
+                                    ).join('')}
+                                </select>
+                                <input type="text" class="sol-title-input" placeholder="Titel (z.B. Input)" 
+                                       value="${weekInfo.title || ''}" data-day="${day}" data-time="${time}">
+                                <textarea class="sol-description" placeholder="Beschreibung..." 
+                                          data-day="${day}" data-time="${time}">${weekInfo.description || ''}</textarea>
+                                <div class="file-upload-section">
+                                    <input type="file" id="file_${day}_${time}" style="display: none;" 
+                                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.ppt,.pptx"
+                                           onchange="handleFileUpload(this, '${day}', '${time}')">
+                                    <button class="file-upload-btn" onclick="document.getElementById('file_${day}_${time}').click()">
+                                        📎 Datei
+                                    </button>
+                                    <div class="uploaded-files" id="files_${day}_${time}">
+                                        ${(weekInfo.files || []).map(file => 
+                                            `<div class="uploaded-file">
+                                                <span>${file.name}</span>
+                                                <span class="delete-file" onclick="deleteFile('${day}', '${time}', '${file.id}')">×</span>
+                                            </div>`
+                                        ).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Apply subject color if selected
+                        const select = cell.querySelector('.sol-subject-select');
+                        if (weekInfo.subject) {
+                            const selectedSubject = subjects.find(s => s.value === weekInfo.subject);
+                            if (selectedSubject) {
+                                cell.classList.add(selectedSubject.class);
+                            }
+                        }
+                        
+                        // Add change event for subject selection
+                        select.addEventListener('change', function() {
+                            // Remove all subject classes
+                            subjects.forEach(s => cell.classList.remove(s.class));
+                            
+                            // Add new subject class
+                            if (this.value) {
+                                const selectedSubject = subjects.find(s => s.value === this.value);
+                                if (selectedSubject) {
+                                    cell.classList.add(selectedSubject.class);
+                                }
+                            }
+                        });
+                        
+                    } else {
+                        // Non-SOL cell - display only
+                        cell.className = 'schedule-cell non-sol';
+                        
+                        if (masterSubject) {
+                            const subjectData = subjects.find(s => s.value === masterSubject);
+                            if (subjectData) {
+                                cell.classList.add(subjectData.class);
+                                cell.textContent = masterSubject;
+                            }
+                        } else {
+                            cell.textContent = '-';
+                        }
+                    }
+                    
+                    container.appendChild(cell);
+                });
+            });
+        }
+
+        // Handle File Upload
+        window.handleFileUpload = async (input, day, time) => {
+            const file = input.files[0];
+            if (!file) return;
+            
+            try {
+                const fileName = `${Date.now()}_${file.name}`;
+                const fileStorageRef = storageRef(storage, `weekFiles/${fileName}`);
+                
+                await uploadBytes(fileStorageRef, file);
+                const downloadURL = await getDownloadURL(fileStorageRef);
+                
+                // Add file to week data
+                const weekKey = `${day}_${time}`;
+                if (!window.weekData[weekKey]) {
+                    window.weekData[weekKey] = {};
+                }
+                if (!window.weekData[weekKey].files) {
+                    window.weekData[weekKey].files = [];
+                }
+                
+                window.weekData[weekKey].files.push({
+                    id: fileName,
+                    name: file.name,
+                    url: downloadURL
+                });
+                
+                // Update display
+                const filesContainer = document.getElementById(`files_${day}_${time}`);
+                const fileDiv = document.createElement('div');
+                fileDiv.className = 'uploaded-file';
+                fileDiv.innerHTML = `
+                    <span>${file.name}</span>
+                    <span class="delete-file" onclick="deleteFile('${day}', '${time}', '${fileName}')">×</span>
+                `;
+                filesContainer.appendChild(fileDiv);
+                
+                // Clear input
+                input.value = '';
+                
+            } catch (error) {
+                console.error('Fehler beim Datei-Upload:', error);
+                alert('Fehler beim Hochladen der Datei: ' + error.message);
+            }
+        };
+
+        // Delete File
+        window.deleteFile = async (day, time, fileId) => {
+            try {
+                // Delete from storage
+                const fileStorageRef = storageRef(storage, `weekFiles/${fileId}`);
+                await deleteObject(fileStorageRef);
+                
+                // Remove from week data
+                const weekKey = `${day}_${time}`;
+                if (window.weekData[weekKey] && window.weekData[weekKey].files) {
+                    window.weekData[weekKey].files = window.weekData[weekKey].files.filter(f => f.id !== fileId);
+                }
+                
+                // Update display
+                const filesContainer = document.getElementById(`files_${day}_${time}`);
+                const fileElements = filesContainer.querySelectorAll('.uploaded-file');
+                fileElements.forEach(el => {
+                    if (el.innerHTML.includes(fileId)) {
+                        el.remove();
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Fehler beim Löschen der Datei:', error);
+            }
+        };
+
+        // Save Week Schedule
+        window.saveWeekSchedule = async () => {
+            try {
+                const weekData = {};
+                
+                // Collect all SOL data
+                timeSlots.forEach(time => {
+                    weekdays.forEach(day => {
+                        const weekKey = `${day}_${time}`;
+                        
+                        const subjectSelect = document.querySelector(`[data-day="${day}"][data-time="${time}"].sol-subject-select`);
+                        const titleInput = document.querySelector(`[data-day="${day}"][data-time="${time}"].sol-title-input`);
+                        const descriptionInput = document.querySelector(`[data-day="${day}"][data-time="${time}"].sol-description`);
+                        
+                        if (subjectSelect) {
+                            const subject = subjectSelect.value;
+                            const title = titleInput.value;
+                            const description = descriptionInput.value;
+                            
+                            if (subject || title || description || (window.weekData[weekKey] && window.weekData[weekKey].files)) {
+                                weekData[weekKey] = {
+                                    subject: subject,
+                                    title: title,
+                                    description: description,
+                                    files: (window.weekData[weekKey] && window.weekData[weekKey].files) || []
+                                };
+                            }
+                        }
+                    });
+                });
+                
+                // Save to database
+                await set(ref(database, 'currentWeek'), weekData);
+                window.weekData = weekData;
+                
+                showMessage('weekSaveStatus', 'Wochenplanung erfolgreich gespeichert!', false);
+                
+            } catch (error) {
+                showMessage('weekSaveStatus', 'Fehler beim Speichern: ' + error.message, true);
+            }
+        };
+
+        // Utility function to show messages
+        function showMessage(elementId, message, isError) {
+            const element = document.getElementById(elementId);
+            if (message) {
+                element.textContent = message;
+                element.className = isError ? 'status-message status-error' : 'status-message status-success';
+                element.style.display = 'block';
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 5000);
+            } else {
+                element.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html><!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -437,23 +727,455 @@
             border-radius: 10px;
         }
 
-        @media (max-width: 768px) {
-            .week-schedule {
-                grid-template-columns: 80px repeat(5, 1fr);
-                font-size: 10px;
+        /* Digitale Pinwand Styles */
+        .pinboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+        }
+
+        .pinboard-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .add-task-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-task-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .pinboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+            min-height: 400px;
+        }
+
+        .pin-card {
+            background: #fefefe;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: grab;
+            border-left: 5px solid #667eea;
+        }
+
+        .pin-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .pin-card.dragging {
+            transform: rotate(5deg);
+            z-index: 1000;
+            opacity: 0.8;
+        }
+
+        .pin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .pin-subject {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .pin-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .pin-action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .pin-action-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .edit-pin { color: #4299e1; }
+        .delete-pin { color: #e53e3e; }
+
+        .pin-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .pin-description {
+            color: #4a5568;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .pin-materials {
+            margin-top: 15px;
+        }
+
+        .pin-materials h4 {
+            color: #4a5568;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .material-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .material-tag {
+            background: #e6fffa;
+            color: #234e52;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .material-tag:hover {
+            background: #b2f5ea;
+            transform: scale(1.05);
+        }
+
+        .pin-date {
+            color: #a0aec0;
+            font-size: 11px;
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        .empty-pinboard {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0aec0;
+        }
+
+        .empty-pinboard .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
             }
-            
-            .schedule-cell {
-                min-height: 60px;
-                padding: 4px;
-            }
-            
-            .sol-description {
-                height: 30px;
+            to {
+                transform: translateY(0);
+                opacity: 1;
             }
         }
 
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #a0aec0;
+            padding: 5px;
+            border-radius: 50%;
+        }
+
+        .close-modal:hover {
+            background: #f1f5f9;
+            color: #4a5568;
+        }
+
+        .task-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .task-form .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .task-form .form-group input,
+        .task-form .form-group select,
+        .task-form .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .task-form .form-group input:focus,
+        .task-form .form-group select:focus,
+        .task-form .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .file-upload-area {
+            border: 2px dashed #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover {
+            border-color: #667eea;
+            background: #f8fafc;
+        }
+
+        .file-upload-area.dragover {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .selected-files-list {
+            margin-top: 15px;
+        }
+
+        .file-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-icon {
+            font-size: 20px;
+        }
+
+        .remove-file {
+            color: #e53e3e;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+        }
+
+        .remove-file:hover {
+            background: #fed7d7;
+        }
+
+        .link-input-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .link-input-area input {
+            flex: 1;
+        }
+
+        .add-link-btn {
+            background: #4299e1;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .add-link-btn:hover {
+            background: #3182ce;
+        }
+
+        .added-links-list {
+            margin-top: 15px;
+        }
+
+        .link-item {
+            background: #ebf8ff;
+            border: 1px solid #bee3f8;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .link-item a {
+            color: #2b6cb0;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .link-item a:hover {
+            text-decoration: underline;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+
+        .secondary-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .secondary-btn:hover {
+            background: #cbd5e0;
+        }
+
         @media (max-width: 768px) {
+            .pinboard {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                margin: 20px;
+                padding: 20px;
+            }
+            
+            .pinboard-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
             .container {
                 padding: 10px;
             }
@@ -474,6 +1196,20 @@
             .logout-btn {
                 position: static;
                 margin-top: 10px;
+            }
+            
+            .week-schedule {
+                grid-template-columns: 80px repeat(5, 1fr);
+                font-size: 10px;
+            }
+            
+            .schedule-cell {
+                min-height: 60px;
+                padding: 4px;
+            }
+            
+            .sol-description {
+                height: 30px;
             }
         }
     </style>
@@ -539,11 +1275,24 @@
             </div>
 
             <div id="aufgabenTab" class="tab-content" style="display: none;">
-                <div class="placeholder-content">
-                    <h2>Aufgabenseite</h2>
-                    <p>Hier werden später die SOL-Aufgaben verwaltet.</p>
-                    <p>Nur Stunden, die als "SOL" markiert sind, werden hier angezeigt.</p>
+                <!-- Pinboard Header -->
+                <div class="pinboard-header">
+                    <h2>📌 Digitale Aufgaben-Pinwand</h2>
+                    <button class="add-task-btn" onclick="openTaskModal()">
+                        ➕ Neuen Auftrag anheften
+                    </button>
                 </div>
+
+                <!-- Pinboard -->
+                <div class="pinboard" id="pinboard">
+                    <div class="empty-pinboard">
+                        <div class="icon">📌</div>
+                        <h3>Noch keine Aufträge angeheftet</h3>
+                        <p>Klicken Sie auf "Neuen Auftrag anheften" um zu beginnen</p>
+                    </div>
+                </div>
+
+                <div id="taskSaveStatus" class="status-message" style="display: none;"></div>
             </div>
 
             <div id="stundenplanTab" class="tab-content" style="display: none;">
@@ -558,6 +1307,77 @@
                 
                 <button class="week-save-btn" onclick="saveWeekSchedule()">Wochenplanung speichern</button>
                 <div id="weekSaveStatus" class="status-message" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Task Modal -->
+        <div id="taskModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="modalTitle">Neuen Auftrag erstellen</h2>
+                    <button class="close-modal" onclick="closeTaskModal()">×</button>
+                </div>
+                
+                <form id="taskForm" class="task-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="taskSubject">Fach *</label>
+                            <select id="taskSubject" required>
+                                <option value="">Bitte wählen...</option>
+                                <option value="Deutsch">Deutsch</option>
+                                <option value="Französisch">Französisch</option>
+                                <option value="Englisch">Englisch</option>
+                                <option value="Mathematik">Mathematik</option>
+                                <option value="Natur & Technik">Natur & Technik</option>
+                                <option value="Räume, Zeiten, Gesellschaften">Räume, Zeiten, Gesellschaften</option>
+                                <option value="Ethik, Religion, Gemeinschaft">Ethik, Religion, Gemeinschaft</option>
+                                <option value="Wirtschaft, Arbeit, Haushalt">Wirtschaft, Arbeit, Haushalt</option>
+                                <option value="Musik">Musik</option>
+                                <option value="Textiles- und Technisches Gestalten">Textiles- und Technisches Gestalten</option>
+                                <option value="Bildnisches Gestalten">Bildnisches Gestalten</option>
+                                <option value="Bewegung und Sport">Bewegung und Sport</option>
+                                <option value="Individuelle Vertiefung">Individuelle Vertiefung</option>
+                                <option value="Lernatelier">Lernatelier</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskTitle">Titel *</label>
+                            <input type="text" id="taskTitle" placeholder="z.B. Textverständnis Übung 3" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="taskDescription">Beschreibung des Auftrags *</label>
+                        <textarea id="taskDescription" rows="4" placeholder="Detaillierte Beschreibung des Auftrags..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Materialien & Dateien</label>
+                        <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('taskFiles').click()">
+                            <input type="file" id="taskFiles" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.ppt,.pptx,.txt,.xlsx,.xls" style="display: none;">
+                            <div>
+                                <div style="font-size: 2rem; margin-bottom: 10px;">📎</div>
+                                <p><strong>Dateien hier ablegen oder klicken</strong></p>
+                                <p style="color: #a0aec0; font-size: 12px;">PDF, Word, Excel, PowerPoint, Bilder</p>
+                            </div>
+                        </div>
+                        <div id="selectedFilesList" class="selected-files-list"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Online-Links hinzufügen</label>
+                        <div class="link-input-area">
+                            <input type="url" id="taskLink" placeholder="https://... (Link zu Online-Material)">
+                            <button type="button" class="add-link-btn" onclick="addLink()">+ Link</button>
+                        </div>
+                        <div id="addedLinksList" class="added-links-list"></div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="modal-btn secondary-btn" onclick="closeTaskModal()">Abbrechen</button>
+                        <button type="submit" class="modal-btn primary-btn" id="submitTaskBtn">Auftrag anheften</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -633,6 +1453,9 @@
         window.storage = storage;
         window.scheduleData = {};
         window.weekData = {};
+        window.selectedFiles = [];
+        window.addedLinks = [];
+        window.editingTaskId = null;
 
         // Login Form Event
         document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
@@ -690,6 +1513,12 @@
             // Load week schedule when switching to stundenplan tab
             if (tabName === 'stundenplan') {
                 initializeWeekSchedule();
+            }
+            
+            // Load tasks when switching to aufgaben tab
+            if (tabName === 'aufgaben') {
+                loadTasks();
+                initializePinboard();
             }
         };
 
@@ -790,271 +1619,375 @@
             }
         }
 
-        // Initialize Week Schedule
-        async function initializeWeekSchedule() {
-            try {
-                // Load master schedule first
-                const masterSnapshot = await get(child(ref(database), 'schedule'));
-                if (!masterSnapshot.exists()) {
-                    document.getElementById('weekSchedule').innerHTML = '<p>Bitte erstellen Sie zuerst einen Stundenplan in der Masterseite.</p>';
-                    return;
-                }
-                
-                const masterData = masterSnapshot.val();
-                
-                // Load current week data
-                const weekSnapshot = await get(child(ref(database), 'currentWeek'));
-                const weekData = weekSnapshot.exists() ? weekSnapshot.val() : {};
-                
-                // Generate week schedule
-                generateWeekSchedule(masterData, weekData);
-                
-            } catch (error) {
-                console.error('Fehler beim Laden der Wochendaten:', error);
-            }
+        // Pinboard Functions
+        function initializePinboard() {
+            setupFileUpload();
+            setupModalEvents();
         }
 
-        // Generate Week Schedule Grid
-        function generateWeekSchedule(masterData, weekData) {
-            const container = document.getElementById('weekSchedule');
+        function setupFileUpload() {
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            const fileInput = document.getElementById('taskFiles');
+
+            // Drag and drop events
+            fileUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUploadArea.classList.add('dragover');
+            });
+
+            fileUploadArea.addEventListener('dragleave', () => {
+                fileUploadArea.classList.remove('dragover');
+            });
+
+            fileUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileUploadArea.classList.remove('dragover');
+                const files = Array.from(e.dataTransfer.files);
+                window.selectedFiles = [...window.selectedFiles, ...files];
+                displaySelectedFiles();
+            });
+
+            // File input change
+            fileInput.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                window.selectedFiles = [...window.selectedFiles, ...files];
+                displaySelectedFiles();
+            });
+        }
+
+        function setupModalEvents() {
+            const modal = document.getElementById('taskModal');
+            const taskForm = document.getElementById('taskForm');
+
+            // Close modal when clicking outside
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeTaskModal();
+                }
+            });
+
+            // Form submission
+            taskForm.addEventListener('submit', handleTaskSubmit);
+        }
+
+        window.openTaskModal = (taskId = null) => {
+            const modal = document.getElementById('taskModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const submitBtn = document.getElementById('submitTaskBtn');
+
+            if (taskId) {
+                modalTitle.textContent = 'Auftrag bearbeiten';
+                submitBtn.textContent = 'Auftrag aktualisieren';
+                window.editingTaskId = taskId;
+                loadTaskForEditing(taskId);
+            } else {
+                modalTitle.textContent = 'Neuen Auftrag erstellen';
+                submitBtn.textContent = 'Auftrag anheften';
+                window.editingTaskId = null;
+                clearTaskForm();
+            }
+
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeTaskModal = () => {
+            const modal = document.getElementById('taskModal');
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+            clearTaskForm();
+        };
+
+        function displaySelectedFiles() {
+            const container = document.getElementById('selectedFilesList');
             container.innerHTML = '';
             
-            // Header row
-            const headerTime = document.createElement('div');
-            headerTime.className = 'schedule-header';
-            headerTime.textContent = 'Zeit';
-            container.appendChild(headerTime);
-            
-            weekdays.forEach(day => {
-                const header = document.createElement('div');
-                header.className = 'schedule-header';
-                header.textContent = day;
-                container.appendChild(header);
-            });
-            
-            // Time slots
-            timeSlots.forEach(time => {
-                // Time column
-                const timeCell = document.createElement('div');
-                timeCell.className = 'schedule-time';
-                timeCell.textContent = time.replace(' - ', '\n');
-                container.appendChild(timeCell);
-                
-                // Day columns
-                weekdays.forEach(day => {
-                    const cell = document.createElement('div');
-                    const masterSubject = masterData[day] && masterData[day][time] ? masterData[day][time] : '';
-                    
-                    if (masterSubject === 'SOL') {
-                        // SOL cell - editable
-                        cell.className = 'schedule-cell sol-editable';
-                        
-                        const weekKey = `${day}_${time}`;
-                        const weekInfo = weekData[weekKey] || {};
-                        
-                        cell.innerHTML = `
-                            <div class="sol-content">
-                                <select class="sol-subject-select" data-day="${day}" data-time="${time}">
-                                    <option value="">SOL (normal)</option>
-                                    ${subjects.filter(s => s.value && s.value !== 'SOL').map(subject => 
-                                        `<option value="${subject.value}" ${weekInfo.subject === subject.value ? 'selected' : ''}>${subject.text}</option>`
-                                    ).join('')}
-                                </select>
-                                <input type="text" class="sol-title-input" placeholder="Titel (z.B. Input)" 
-                                       value="${weekInfo.title || ''}" data-day="${day}" data-time="${time}">
-                                <textarea class="sol-description" placeholder="Beschreibung..." 
-                                          data-day="${day}" data-time="${time}">${weekInfo.description || ''}</textarea>
-                                <div class="file-upload-section">
-                                    <input type="file" id="file_${day}_${time}" style="display: none;" 
-                                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.ppt,.pptx"
-                                           onchange="handleFileUpload(this, '${day}', '${time}')">
-                                    <button class="file-upload-btn" onclick="document.getElementById('file_${day}_${time}').click()">
-                                        📎 Datei
-                                    </button>
-                                    <div class="uploaded-files" id="files_${day}_${time}">
-                                        ${(weekInfo.files || []).map(file => 
-                                            `<div class="uploaded-file">
-                                                <span>${file.name}</span>
-                                                <span class="delete-file" onclick="deleteFile('${day}', '${time}', '${file.id}')">×</span>
-                                            </div>`
-                                        ).join('')}
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        
-                        // Apply subject color if selected
-                        const select = cell.querySelector('.sol-subject-select');
-                        if (weekInfo.subject) {
-                            const selectedSubject = subjects.find(s => s.value === weekInfo.subject);
-                            if (selectedSubject) {
-                                cell.classList.add(selectedSubject.class);
-                            }
-                        }
-                        
-                        // Add change event for subject selection
-                        select.addEventListener('change', function() {
-                            // Remove all subject classes
-                            subjects.forEach(s => cell.classList.remove(s.class));
-                            
-                            // Add new subject class
-                            if (this.value) {
-                                const selectedSubject = subjects.find(s => s.value === this.value);
-                                if (selectedSubject) {
-                                    cell.classList.add(selectedSubject.class);
-                                }
-                            }
-                        });
-                        
-                    } else {
-                        // Non-SOL cell - display only
-                        cell.className = 'schedule-cell non-sol';
-                        
-                        if (masterSubject) {
-                            const subjectData = subjects.find(s => s.value === masterSubject);
-                            if (subjectData) {
-                                cell.classList.add(subjectData.class);
-                                cell.textContent = masterSubject;
-                            }
-                        } else {
-                            cell.textContent = '-';
-                        }
-                    }
-                    
-                    container.appendChild(cell);
-                });
-            });
-        }
-
-        // Handle File Upload
-        window.handleFileUpload = async (input, day, time) => {
-            const file = input.files[0];
-            if (!file) return;
-            
-            try {
-                const fileName = `${Date.now()}_${file.name}`;
-                const fileStorageRef = storageRef(storage, `weekFiles/${fileName}`);
-                
-                await uploadBytes(fileStorageRef, file);
-                const downloadURL = await getDownloadURL(fileStorageRef);
-                
-                // Add file to week data
-                const weekKey = `${day}_${time}`;
-                if (!window.weekData[weekKey]) {
-                    window.weekData[weekKey] = {};
-                }
-                if (!window.weekData[weekKey].files) {
-                    window.weekData[weekKey].files = [];
-                }
-                
-                window.weekData[weekKey].files.push({
-                    id: fileName,
-                    name: file.name,
-                    url: downloadURL
-                });
-                
-                // Update display
-                const filesContainer = document.getElementById(`files_${day}_${time}`);
+            window.selectedFiles.forEach((file, index) => {
                 const fileDiv = document.createElement('div');
-                fileDiv.className = 'uploaded-file';
+                fileDiv.className = 'file-item';
                 fileDiv.innerHTML = `
-                    <span>${file.name}</span>
-                    <span class="delete-file" onclick="deleteFile('${day}', '${time}', '${fileName}')">×</span>
+                    <div class="file-info">
+                        <span class="file-icon">${getFileIcon(file.name)}</span>
+                        <span>${file.name}</span>
+                    </div>
+                    <span class="remove-file" onclick="removeSelectedFile(${index})">×</span>
                 `;
-                filesContainer.appendChild(fileDiv);
-                
-                // Clear input
-                input.value = '';
-                
-            } catch (error) {
-                console.error('Fehler beim Datei-Upload:', error);
-                alert('Fehler beim Hochladen der Datei: ' + error.message);
-            }
-        };
+                container.appendChild(fileDiv);
+            });
+        }
 
-        // Delete File
-        window.deleteFile = async (day, time, fileId) => {
-            try {
-                // Delete from storage
-                const fileStorageRef = storageRef(storage, `weekFiles/${fileId}`);
-                await deleteObject(fileStorageRef);
-                
-                // Remove from week data
-                const weekKey = `${day}_${time}`;
-                if (window.weekData[weekKey] && window.weekData[weekKey].files) {
-                    window.weekData[weekKey].files = window.weekData[weekKey].files.filter(f => f.id !== fileId);
-                }
-                
-                // Update display
-                const filesContainer = document.getElementById(`files_${day}_${time}`);
-                const fileElements = filesContainer.querySelectorAll('.uploaded-file');
-                fileElements.forEach(el => {
-                    if (el.innerHTML.includes(fileId)) {
-                        el.remove();
-                    }
-                });
-                
-            } catch (error) {
-                console.error('Fehler beim Löschen der Datei:', error);
-            }
-        };
-
-        // Save Week Schedule
-        window.saveWeekSchedule = async () => {
-            try {
-                const weekData = {};
-                
-                // Collect all SOL data
-                timeSlots.forEach(time => {
-                    weekdays.forEach(day => {
-                        const weekKey = `${day}_${time}`;
-                        
-                        const subjectSelect = document.querySelector(`[data-day="${day}"][data-time="${time}"].sol-subject-select`);
-                        const titleInput = document.querySelector(`[data-day="${day}"][data-time="${time}"].sol-title-input`);
-                        const descriptionInput = document.querySelector(`[data-day="${day}"][data-time="${time}"].sol-description`);
-                        
-                        if (subjectSelect) {
-                            const subject = subjectSelect.value;
-                            const title = titleInput.value;
-                            const description = descriptionInput.value;
-                            
-                            if (subject || title || description || (window.weekData[weekKey] && window.weekData[weekKey].files)) {
-                                weekData[weekKey] = {
-                                    subject: subject,
-                                    title: title,
-                                    description: description,
-                                    files: (window.weekData[weekKey] && window.weekData[weekKey].files) || []
-                                };
-                            }
-                        }
-                    });
-                });
-                
-                // Save to database
-                await set(ref(database, 'currentWeek'), weekData);
-                window.weekData = weekData;
-                
-                showMessage('weekSaveStatus', 'Wochenplanung erfolgreich gespeichert!', false);
-                
-            } catch (error) {
-                showMessage('weekSaveStatus', 'Fehler beim Speichern: ' + error.message, true);
-            }
-        };
-
-        // Utility function to show messages
-        function showMessage(elementId, message, isError) {
-            const element = document.getElementById(elementId);
-            if (message) {
-                element.textContent = message;
-                element.className = isError ? 'status-message status-error' : 'status-message status-success';
-                element.style.display = 'block';
-                setTimeout(() => {
-                    element.style.display = 'none';
-                }, 5000);
-            } else {
-                element.style.display = 'none';
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            switch (ext) {
+                case 'pdf': return '📄';
+                case 'doc':
+                case 'docx': return '📝';
+                case 'xls':
+                case 'xlsx': return '📊';
+                case 'ppt':
+                case 'pptx': return '📽️';
+                case 'jpg':
+                case 'jpeg':
+                case 'png':
+                case 'gif': return '🖼️';
+                default: return '📎';
             }
         }
-    </script>
-</body>
-</html>
+
+        window.removeSelectedFile = (index) => {
+            window.selectedFiles.splice(index, 1);
+            displaySelectedFiles();
+        };
+
+        window.addLink = () => {
+            const linkInput = document.getElementById('taskLink');
+            const url = linkInput.value.trim();
+            
+            if (url && isValidUrl(url)) {
+                window.addedLinks.push(url);
+                linkInput.value = '';
+                displayAddedLinks();
+            } else if (url) {
+                alert('Bitte geben Sie eine gültige URL ein (z.B. https://example.com)');
+            }
+        };
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function displayAddedLinks() {
+            const container = document.getElementById('addedLinksList');
+            container.innerHTML = '';
+            
+            window.addedLinks.forEach((link, index) => {
+                const linkDiv = document.createElement('div');
+                linkDiv.className = 'link-item';
+                linkDiv.innerHTML = `
+                    <a href="${link}" target="_blank" title="${link}">${new URL(link).hostname}</a>
+                    <span class="remove-file" onclick="removeAddedLink(${index})">×</span>
+                `;
+                container.appendChild(linkDiv);
+            });
+        }
+
+        window.removeAddedLink = (index) => {
+            window.addedLinks.splice(index, 1);
+            displayAddedLinks();
+        };
+
+        async function handleTaskSubmit(e) {
+            e.preventDefault();
+            
+            const subject = document.getElementById('taskSubject').value;
+            const title = document.getElementById('taskTitle').value;
+            const description = document.getElementById('taskDescription').value;
+            
+            if (!subject || !title || !description) {
+                showMessage('taskSaveStatus', 'Bitte füllen Sie alle Pflichtfelder aus.', true);
+                return;
+            }
+            
+            try {
+                const taskId = window.editingTaskId || Date.now().toString();
+                const task = {
+                    id: taskId,
+                    subject: subject,
+                    title: title,
+                    description: description,
+                    createdAt: window.editingTaskId ? (await getTaskById(taskId)).createdAt : new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    files: [],
+                    links: [...window.addedLinks]
+                };
+                
+                // Upload files
+                for (const file of window.selectedFiles) {
+                    const fileName = `${taskId}_${Date.now()}_${file.name}`;
+                    const fileStorageRef = storageRef(storage, `taskFiles/${fileName}`);
+                    
+                    await uploadBytes(fileStorageRef, file);
+                    const downloadURL = await getDownloadURL(fileStorageRef);
+                    
+                    task.files.push({
+                        name: file.name,
+                        url: downloadURL,
+                        id: fileName
+                    });
+                }
+                
+                // Save task to database
+                await set(ref(database, `tasks/${taskId}`), task);
+                
+                const message = window.editingTaskId ? 'Auftrag erfolgreich aktualisiert!' : 'Auftrag erfolgreich erstellt!';
+                showMessage('taskSaveStatus', message, false);
+                closeTaskModal();
+                loadTasks();
+                
+            } catch (error) {
+                showMessage('taskSaveStatus', 'Fehler beim Speichern des Auftrags: ' + error.message, true);
+            }
+        }
+
+        async function getTaskById(taskId) {
+            const snapshot = await get(child(ref(database), `tasks/${taskId}`));
+            return snapshot.exists() ? snapshot.val() : null;
+        }
+
+        function clearTaskForm() {
+            document.getElementById('taskForm').reset();
+            window.selectedFiles = [];
+            window.addedLinks = [];
+            displaySelectedFiles();
+            displayAddedLinks();
+        }
+
+        async function loadTaskForEditing(taskId) {
+            try {
+                const task = await getTaskById(taskId);
+                if (task) {
+                    document.getElementById('taskSubject').value = task.subject;
+                    document.getElementById('taskTitle').value = task.title;
+                    document.getElementById('taskDescription').value = task.description;
+                    
+                    window.addedLinks = [...(task.links || [])];
+                    displayAddedLinks();
+                    
+                    // Clear files (user needs to re-upload)
+                    window.selectedFiles = [];
+                    displaySelectedFiles();
+                }
+            } catch (error) {
+                showMessage('taskSaveStatus', 'Fehler beim Laden des Auftrags: ' + error.message, true);
+            }
+        }
+
+        async function loadTasks() {
+            try {
+                const snapshot = await get(child(ref(database), 'tasks'));
+                const pinboard = document.getElementById('pinboard');
+                
+                if (snapshot.exists()) {
+                    const tasks = snapshot.val();
+                    const taskArray = Object.values(tasks).sort((a, b) => 
+                        new Date(b.createdAt) - new Date(a.createdAt)
+                    );
+                    
+                    pinboard.innerHTML = '';
+                    
+                    taskArray.forEach(task => {
+                        const pinCard = createPinCard(task);
+                        pinboard.appendChild(pinCard);
+                    });
+                } else {
+                    pinboard.innerHTML = `
+                        <div class="empty-pinboard">
+                            <div class="icon">📌</div>
+                            <h3>Noch keine Aufträge angeheftet</h3>
+                            <p>Klicken Sie auf "Neuen Auftrag anheften" um zu beginnen</p>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Fehler beim Laden der Aufträge:', error);
+            }
+        }
+
+        function createPinCard(task) {
+            const card = document.createElement('div');
+            card.className = 'pin-card';
+            card.setAttribute('data-task-id', task.id);
+            
+            const createdDate = new Date(task.createdAt).toLocaleDateString('de-DE');
+            const subjectColor = getSubjectColor(task.subject);
+            
+            card.innerHTML = `
+                <div class="pin-header">
+                    <span class="pin-subject" style="background: ${subjectColor}">${task.subject}</span>
+                    <div class="pin-actions">
+                        <button class="pin-action-btn edit-pin" onclick="openTaskModal('${task.id}')" title="Bearbeiten">
+                            ✏️
+                        </button>
+                        <button class="pin-action-btn delete-pin" onclick="deleteTask('${task.id}')" title="Löschen">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+                <h3 class="pin-title">${task.title}</h3>
+                <p class="pin-description">${task.description}</p>
+                
+                ${task.files.length > 0 || task.links.length > 0 ? `
+                    <div class="pin-materials">
+                        <h4>Materialien</h4>
+                        <div class="material-tags">
+                            ${task.files.map(file => 
+                                `<a href="${file.url}" target="_blank" class="material-tag">${getFileIcon(file.name)} ${file.name}</a>`
+                            ).join('')}
+                            ${task.links.map(link => 
+                                `<a href="${link}" target="_blank" class="material-tag">🔗 ${new URL(link).hostname}</a>`
+                            ).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+                
+                <div class="pin-date">📅 ${createdDate}</div>
+            `;
+            
+            return card;
+        }
+
+        function getSubjectColor(subject) {
+            const colors = {
+                'Deutsch': '#4299e1',
+                'Französisch': '#3182ce',
+                'Englisch': '#2c5282',
+                'Mathematik': '#ed8936',
+                'Natur & Technik': '#dd6b20',
+                'Räume, Zeiten, Gesellschaften': '#e53e3e',
+                'Ethik, Religion, Gemeinschaft': '#c53030',
+                'Wirtschaft, Arbeit, Haushalt': '#9c4221',
+                'Musik': '#805ad5',
+                'Textiles- und Technisches Gestalten': '#6b46c1',
+                'Bildnisches Gestalten': '#553c9a',
+                'Bewegung und Sport': '#ecc94b',
+                'Individuelle Vertiefung': '#38b2ac',
+                'Lernatelier': '#319795'
+            };
+            return colors[subject] || '#667eea';
+        }
+
+        window.deleteTask = async (taskId) => {
+            if (!confirm('Möchten Sie diesen Auftrag wirklich von der Pinwand entfernen?')) {
+                return;
+            }
+            
+            try {
+                const task = await getTaskById(taskId);
+                if (task) {
+                    // Delete files from storage
+                    for (const file of task.files || []) {
+                        try {
+                            const fileStorageRef = storageRef(storage, `taskFiles/${file.id}`);
+                            await deleteObject(fileStorageRef);
+                        } catch (error) {
+                            console.warn('Datei konnte nicht gelöscht werden:', error);
+                        }
+                    }
+                }
+                
+                // Delete task from database
+                await set(ref(database, `tasks/${taskId}`), null);
+                
+                showMessage('taskSaveStatus', 'Auftrag wurde von der Pinwand entfernt!', false);
+                loadTasks();
+                
+            } catch (error) {
+                showMessage('taskSaveStatus', 'Fehler beim Löschen des Auftrags: ' + error.message, true);
+            }
+        };
