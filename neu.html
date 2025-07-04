@@ -33,6 +33,7 @@
             max-width: 400px;
             margin: 50px auto;
             text-align: center;
+            backdrop-filter: blur(10px);
         }
 
         .login-container h1 {
@@ -90,6 +91,7 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             margin: 20px auto;
             overflow: hidden;
+            backdrop-filter: blur(10px);
         }
 
         .header {
@@ -155,6 +157,198 @@
             min-height: 600px;
         }
 
+        /* Schedule Table Styles */
+        .schedule-container {
+            overflow-x: auto;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .schedule-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .schedule-table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+
+        .time-slot {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #4a5568;
+            min-width: 120px;
+        }
+
+        .subject-select {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .subject-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Farbcodierung für Fächer */
+        .subject-sol { background-color: #48bb78; color: white; }
+        .subject-deutsch { background-color: #4299e1; color: white; }
+        .subject-französisch { background-color: #3182ce; color: white; }
+        .subject-englisch { background-color: #2c5282; color: white; }
+        .subject-mathematik { background-color: #ed8936; color: white; }
+        .subject-natur-technik { background-color: #dd6b20; color: white; }
+        .subject-medien-informatik { background-color: #17a2b8; color: white; }
+        .subject-rzg { background-color: #e53e3e; color: white; }
+        .subject-erg { background-color: #c53030; color: white; }
+        .subject-wah { background-color: #9c4221; color: white; }
+        .subject-musik { background-color: #805ad5; color: white; }
+        .subject-textiles-gestalten { background-color: #6b46c1; color: white; }
+        .subject-bildnisches-gestalten { background-color: #553c9a; color: white; }
+        .subject-bewegung-sport { background-color: #ecc94b; color: black; }
+        .subject-individuelle-vertiefung { background-color: #38b2ac; color: white; }
+        .subject-lernatelier { background-color: #319795; color: white; }
+        .subject-pause { background-color: #a0aec0; color: white; }
+
+        .save-btn {
+            background: #48bb78;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: all 0.3s;
+        }
+
+        .save-btn:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+
+        /* Week Schedule Styles */
+        .week-schedule {
+            display: grid;
+            grid-template-columns: 120px repeat(5, 1fr);
+            gap: 1px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .schedule-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .schedule-time {
+            background: #f8fafc;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .schedule-cell {
+            background: white;
+            padding: 8px;
+            min-height: 80px;
+            position: relative;
+            border: 1px solid #e2e8f0;
+        }
+
+        .schedule-cell.non-sol {
+            background: #f7fafc;
+            color: #718096;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .schedule-cell.sol-editable {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .schedule-cell.sol-editable:hover {
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .sol-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sol-subject-select {
+            width: 100%;
+            padding: 4px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 11px;
+            background: white;
+        }
+
+        .sol-title-input {
+            width: 100%;
+            padding: 4px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .sol-description {
+            width: 100%;
+            padding: 4px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 10px;
+            resize: none;
+            height: 40px;
+        }
+
+        .week-header {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border-radius: 10px;
+        }
+
         /* Pinwand Styles */
         .pinboard-header {
             display: flex;
@@ -182,6 +376,9 @@
             font-size: 16px;
             font-weight: 600;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .add-task-btn:hover {
@@ -202,6 +399,7 @@
             border-radius: 15px;
             padding: 20px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            position: relative;
             transition: all 0.3s ease;
             border-left: 5px solid #667eea;
         }
@@ -225,6 +423,7 @@
             border-radius: 15px;
             font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
         }
 
         .pin-actions {
@@ -243,6 +442,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.2s;
         }
 
         .pin-action-btn:hover {
@@ -254,6 +454,7 @@
             font-weight: 700;
             color: #2d3748;
             margin-bottom: 10px;
+            line-height: 1.3;
         }
 
         .pin-description {
@@ -288,10 +489,12 @@
             border-radius: 12px;
             font-size: 11px;
             text-decoration: none;
+            transition: all 0.2s;
         }
 
         .material-tag:hover {
             background: #b2f5ea;
+            transform: scale(1.05);
         }
 
         .pin-date {
@@ -323,6 +526,7 @@
             height: 100%;
             background: rgba(0,0,0,0.5);
             z-index: 2000;
+            backdrop-filter: blur(5px);
         }
 
         .modal.show {
@@ -339,6 +543,19 @@
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .modal-header {
@@ -362,9 +579,12 @@
             font-size: 24px;
             cursor: pointer;
             color: #a0aec0;
+            padding: 5px;
+            border-radius: 50%;
         }
 
         .close-modal:hover {
+            background: #f1f5f9;
             color: #4a5568;
         }
 
@@ -385,6 +605,7 @@
             margin-bottom: 8px;
             color: #4a5568;
             font-weight: 600;
+            font-size: 14px;
         }
 
         .task-form .form-group input,
@@ -395,6 +616,7 @@
             border: 2px solid #e2e8f0;
             border-radius: 10px;
             font-size: 14px;
+            transition: border-color 0.3s;
         }
 
         .task-form .form-group input:focus,
@@ -402,6 +624,7 @@
         .task-form .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .file-upload-area {
@@ -409,12 +632,94 @@
             border-radius: 10px;
             padding: 20px;
             text-align: center;
+            transition: all 0.3s;
             cursor: pointer;
         }
 
         .file-upload-area:hover {
             border-color: #667eea;
             background: #f8fafc;
+        }
+
+        .selected-files-list {
+            margin-top: 15px;
+        }
+
+        .file-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .remove-file {
+            color: #e53e3e;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+        }
+
+        .remove-file:hover {
+            background: #fed7d7;
+        }
+
+        .link-input-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .link-input-area input {
+            flex: 1;
+        }
+
+        .add-link-btn {
+            background: #4299e1;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .add-link-btn:hover {
+            background: #3182ce;
+        }
+
+        .added-links-list {
+            margin-top: 15px;
+        }
+
+        .link-item {
+            background: #ebf8ff;
+            border: 1px solid #bee3f8;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .link-item a {
+            color: #2b6cb0;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .link-item a:hover {
+            text-decoration: underline;
         }
 
         .modal-actions {
@@ -431,6 +736,7 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s;
         }
 
         .primary-btn {
@@ -438,9 +744,18 @@
             color: white;
         }
 
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+
         .secondary-btn {
             background: #e2e8f0;
             color: #4a5568;
+        }
+
+        .secondary-btn:hover {
+            background: #cbd5e0;
         }
 
         .status-message {
@@ -466,16 +781,58 @@
         @media (max-width: 768px) {
             .pinboard {
                 grid-template-columns: 1fr;
+                gap: 15px;
             }
             
             .form-row {
                 grid-template-columns: 1fr;
             }
             
+            .modal-content {
+                margin: 20px;
+                padding: 20px;
+            }
+            
             .pinboard-header {
                 flex-direction: column;
                 gap: 15px;
                 text-align: center;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .schedule-table {
+                font-size: 12px;
+            }
+            
+            .subject-select {
+                font-size: 12px;
+                padding: 6px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .logout-btn {
+                position: static;
+                margin-top: 10px;
+            }
+            
+            .week-schedule {
+                grid-template-columns: 80px repeat(5, 1fr);
+                font-size: 10px;
+            }
+            
+            .schedule-cell {
+                min-height: 60px;
+                padding: 4px;
+            }
+            
+            .sol-description {
+                height: 30px;
             }
         }
     </style>
@@ -516,7 +873,28 @@
             <!-- Tab Content -->
             <div id="masterTab" class="tab-content">
                 <h2>Stundenplan-Konfiguration</h2>
-                <p>Hier würde der Masterstundenplan stehen.</p>
+                <p>Tragen Sie hier Ihren Wochenstundenplan ein. SOL-Stunden werden in den anderen Tabs weiterverarbeitet.</p>
+                
+                <div class="schedule-container">
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Zeit</th>
+                                <th>Montag</th>
+                                <th>Dienstag</th>
+                                <th>Mittwoch</th>
+                                <th>Donnerstag</th>
+                                <th>Freitag</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scheduleTableBody">
+                            <!-- Wird dynamisch generiert -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <button class="save-btn" onclick="saveSchedule()">Stundenplan speichern</button>
+                <div id="saveStatus" class="status-message" style="display: none;"></div>
             </div>
 
             <div id="aufgabenTab" class="tab-content" style="display: none;">
@@ -541,8 +919,17 @@
             </div>
 
             <div id="stundenplanTab" class="tab-content" style="display: none;">
-                <h2>Wochenplanung - Aktuelle Woche</h2>
-                <p>Hier würde die Wochenplanung stehen.</p>
+                <div class="week-header">
+                    <h2>Wochenplanung - Aktuelle Woche</h2>
+                    <p>Bearbeiten Sie SOL-Stunden für diese Woche. Andere Fächer bleiben unverändert.</p>
+                </div>
+                
+                <div class="week-schedule" id="weekSchedule">
+                    <!-- Wird dynamisch generiert -->
+                </div>
+                
+                <button class="save-btn" onclick="saveWeekSchedule()">Wochenplanung speichern</button>
+                <div id="weekSaveStatus" class="status-message" style="display: none;"></div>
             </div>
         </div>
 
@@ -561,9 +948,20 @@
                             <select id="taskSubject" required>
                                 <option value="">Bitte wählen...</option>
                                 <option value="Deutsch">Deutsch</option>
-                                <option value="Mathematik">Mathematik</option>
-                                <option value="Englisch">Englisch</option>
                                 <option value="Französisch">Französisch</option>
+                                <option value="Englisch">Englisch</option>
+                                <option value="Mathematik">Mathematik</option>
+                                <option value="Natur & Technik">Natur & Technik</option>
+                                <option value="Medien & Informatik">Medien & Informatik</option>
+                                <option value="Räume, Zeiten, Gesellschaften">Räume, Zeiten, Gesellschaften</option>
+                                <option value="Ethik, Religion, Gemeinschaft">Ethik, Religion, Gemeinschaft</option>
+                                <option value="Wirtschaft, Arbeit, Haushalt">Wirtschaft, Arbeit, Haushalt</option>
+                                <option value="Musik">Musik</option>
+                                <option value="Textiles- und Technisches Gestalten">Textiles- und Technisches Gestalten</option>
+                                <option value="Bildnisches Gestalten">Bildnisches Gestalten</option>
+                                <option value="Bewegung und Sport">Bewegung und Sport</option>
+                                <option value="Individuelle Vertiefung">Individuelle Vertiefung</option>
+                                <option value="Lernatelier">Lernatelier</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -580,14 +978,23 @@
                     <div class="form-group">
                         <label>Materialien & Dateien</label>
                         <div class="file-upload-area" onclick="document.getElementById('taskFiles').click()">
-                            <input type="file" id="taskFiles" multiple style="display: none;">
+                            <input type="file" id="taskFiles" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.ppt,.pptx,.txt,.xlsx,.xls" style="display: none;">
                             <div>
                                 <div style="font-size: 2rem; margin-bottom: 10px;">📎</div>
-                                <p><strong>Dateien hier klicken oder ablegen</strong></p>
+                                <p><strong>Dateien hier ablegen oder klicken</strong></p>
                                 <p style="color: #a0aec0; font-size: 12px;">PDF, Word, Excel, PowerPoint, Bilder</p>
                             </div>
                         </div>
-                        <div id="selectedFilesList"></div>
+                        <div id="selectedFilesList" class="selected-files-list"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Online-Links hinzufügen</label>
+                        <div class="link-input-area">
+                            <input type="url" id="taskLink" placeholder="https://... (Link zu Online-Material)">
+                            <button type="button" class="add-link-btn" onclick="addLink()">+ Link</button>
+                        </div>
+                        <div id="addedLinksList" class="added-links-list"></div>
                     </div>
                     
                     <div class="modal-actions">
@@ -600,8 +1007,52 @@
     </div>
 
     <script>
-        // Vereinfachte Version ohne Firebase für Demo
+        // Zeit-Slots
+        const timeSlots = [
+            "07:30 - 08:15",
+            "08:20 - 09:05",
+            "09:10 - 09:55",
+            "10:20 - 11:05",
+            "11:10 - 11:55",
+            "12:10 - 12:55",
+            "13:00 - 13:45",
+            "13:50 - 14:35",
+            "14:40 - 15:25",
+            "15:40 - 16:25",
+            "16:30 - 17:15"
+        ];
+
+        // Wochentage
+        const weekdays = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag"];
+
+        // Fächer für Masterstundenplan
+        const subjects = [
+            { value: "", text: "Bitte wählen...", class: "" },
+            { value: "SOL", text: "SOL", class: "subject-sol" },
+            { value: "Bewegung und Sport", text: "Bewegung und Sport", class: "subject-bewegung-sport" },
+            { value: "Deutsch", text: "Deutsch", class: "subject-deutsch" },
+            { value: "Französisch", text: "Französisch", class: "subject-französisch" },
+            { value: "Englisch", text: "Englisch", class: "subject-englisch" },
+            { value: "Mathematik", text: "Mathematik", class: "subject-mathematik" },
+            { value: "Natur & Technik", text: "Natur & Technik", class: "subject-natur-technik" },
+            { value: "Medien & Informatik", text: "Medien & Informatik", class: "subject-medien-informatik" },
+            { value: "Räume, Zeiten, Gesellschaften", text: "Räume, Zeiten, Gesellschaften", class: "subject-rzg" },
+            { value: "Ethik, Religion, Gemeinschaft", text: "Ethik, Religion, Gemeinschaft", class: "subject-erg" },
+            { value: "Wirtschaft, Arbeit, Haushalt", text: "Wirtschaft, Arbeit, Haushalt", class: "subject-wah" },
+            { value: "Musik", text: "Musik", class: "subject-musik" },
+            { value: "Textiles- und Technisches Gestalten", text: "Textiles- und Technisches Gestalten", class: "subject-textiles-gestalten" },
+            { value: "Bildnisches Gestalten", text: "Bildnisches Gestalten", class: "subject-bildnisches-gestalten" },
+            { value: "Individuelle Vertiefung", text: "Individuelle Vertiefung", class: "subject-individuelle-vertiefung" },
+            { value: "Lernatelier", text: "Lernatelier", class: "subject-lernatelier" },
+            { value: "Pause", text: "Pause", class: "subject-pause" }
+        ];
+
+        // Globale Variablen
+        let scheduleData = {};
+        let weekData = {};
         let currentTasks = [];
+        let selectedFiles = [];
+        let addedLinks = [];
         let isLoggedIn = false;
 
         // Login Simulation
@@ -610,6 +1061,8 @@
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             isLoggedIn = true;
+            initializeScheduleTable();
+            loadData();
         });
 
         // Logout
@@ -634,6 +1087,257 @@
             
             // Add active class to clicked button
             event.target.classList.add('active');
+
+            if (tabName === 'stundenplan') {
+                initializeWeekSchedule();
+            }
+            
+            if (tabName === 'aufgaben') {
+                displayTasks();
+            }
+        }
+
+        // Initialize Schedule Table
+        function initializeScheduleTable() {
+            const tbody = document.getElementById('scheduleTableBody');
+            tbody.innerHTML = '';
+            
+            timeSlots.forEach(time => {
+                const row = document.createElement('tr');
+                
+                // Time column
+                const timeCell = document.createElement('td');
+                timeCell.className = 'time-slot';
+                timeCell.textContent = time;
+                row.appendChild(timeCell);
+                
+                // Weekday columns
+                weekdays.forEach(day => {
+                    const cell = document.createElement('td');
+                    const select = document.createElement('select');
+                    select.className = 'subject-select';
+                    select.setAttribute('data-day', day);
+                    select.setAttribute('data-time', time);
+                    
+                    // Add options
+                    subjects.forEach(subject => {
+                        const option = document.createElement('option');
+                        option.value = subject.value;
+                        option.textContent = subject.text;
+                        option.className = subject.class;
+                        select.appendChild(option);
+                    });
+                    
+                    // Add change event listener
+                    select.addEventListener('change', function() {
+                        const selectedSubject = subjects.find(s => s.value === this.value);
+                        if (selectedSubject) {
+                            this.className = 'subject-select ' + selectedSubject.class;
+                        }
+                    });
+                    
+                    cell.appendChild(select);
+                    row.appendChild(cell);
+                });
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Save Schedule
+        function saveSchedule() {
+            const selects = document.querySelectorAll('.subject-select');
+            scheduleData = {};
+            
+            selects.forEach(select => {
+                const day = select.getAttribute('data-day');
+                const time = select.getAttribute('data-time');
+                const subject = select.value;
+                
+                if (!scheduleData[day]) {
+                    scheduleData[day] = {};
+                }
+                scheduleData[day][time] = subject;
+            });
+            
+            // Simulate saving
+            localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
+            showMessage('saveStatus', 'Stundenplan erfolgreich gespeichert!', false);
+        }
+
+        // Initialize Week Schedule
+        function initializeWeekSchedule() {
+            if (Object.keys(scheduleData).length === 0) {
+                document.getElementById('weekSchedule').innerHTML = '<p>Bitte erstellen Sie zuerst einen Stundenplan in der Masterseite.</p>';
+                return;
+            }
+            
+            generateWeekSchedule();
+        }
+
+        // Generate Week Schedule Grid
+        function generateWeekSchedule() {
+            const container = document.getElementById('weekSchedule');
+            container.innerHTML = '';
+            
+            // Header row
+            const headerTime = document.createElement('div');
+            headerTime.className = 'schedule-header';
+            headerTime.textContent = 'Zeit';
+            container.appendChild(headerTime);
+            
+            weekdays.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'schedule-header';
+                header.textContent = day;
+                container.appendChild(header);
+            });
+            
+            // Time slots
+            timeSlots.forEach(time => {
+                // Time column
+                const timeCell = document.createElement('div');
+                timeCell.className = 'schedule-time';
+                timeCell.textContent = time.replace(' - ', '\n');
+                container.appendChild(timeCell);
+                
+                // Day columns
+                weekdays.forEach(day => {
+                    const cell = document.createElement('div');
+                    const masterSubject = scheduleData[day] && scheduleData[day][time] ? scheduleData[day][time] : '';
+                    
+                    if (masterSubject === 'SOL') {
+                        // SOL cell - editable
+                        cell.className = 'schedule-cell sol-editable';
+                        
+                        const weekKey = `${day}_${time}`;
+                        const weekInfo = weekData[weekKey] || {};
+                        
+                        cell.innerHTML = `
+                            <div class="sol-content">
+                                <select class="sol-subject-select" data-day="${day}" data-time="${time}">
+                                    <option value="">SOL (normal)</option>
+                                    ${subjects.filter(s => s.value && s.value !== 'SOL').map(subject => 
+                                        `<option value="${subject.value}" ${weekInfo.subject === subject.value ? 'selected' : ''}>${subject.text}</option>`
+                                    ).join('')}
+                                </select>
+                                <input type="text" class="sol-title-input" placeholder="Titel (z.B. Input)" 
+                                       value="${weekInfo.title || ''}" data-day="${day}" data-time="${time}">
+                                <textarea class="sol-description" placeholder="Beschreibung..." 
+                                          data-day="${day}" data-time="${time}">${weekInfo.description || ''}</textarea>
+                            </div>
+                        `;
+                        
+                        // Apply subject color if selected
+                        const select = cell.querySelector('.sol-subject-select');
+                        if (weekInfo.subject) {
+                            const selectedSubject = subjects.find(s => s.value === weekInfo.subject);
+                            if (selectedSubject) {
+                                cell.classList.add(selectedSubject.class);
+                            }
+                        }
+                        
+                        // Add change event for subject selection
+                        select.addEventListener('change', function() {
+                            // Remove all subject classes
+                            subjects.forEach(s => cell.classList.remove(s.class));
+                            
+                            // Add new subject class
+                            if (this.value) {
+                                const selectedSubject = subjects.find(s => s.value === this.value);
+                                if (selectedSubject) {
+                                    cell.classList.add(selectedSubject.class);
+                                }
+                            }
+                        });
+                        
+                    } else {
+                        // Non-SOL cell - display only
+                        cell.className = 'schedule-cell non-sol';
+                        
+                        if (masterSubject) {
+                            const subjectData = subjects.find(s => s.value === masterSubject);
+                            if (subjectData) {
+                                cell.classList.add(subjectData.class);
+                                cell.textContent = masterSubject;
+                            }
+                        } else {
+                            cell.textContent = '-';
+                        }
+                    }
+                    
+                    container.appendChild(cell);
+                });
+            });
+        }
+
+        // Save Week Schedule
+        function saveWeekSchedule() {
+            weekData = {};
+            
+            // Collect all SOL data
+            timeSlots.forEach(time => {
+                weekdays.forEach(day => {
+                    const weekKey = `${day}_${time}`;
+                    
+                    const subjectSelect = document.querySelector(`[data-day="${day}"][data-time="${time}"].sol-subject-select`);
+                    const titleInput = document.querySelector(`[data-day="${day}"][data-time="${time}"].sol-title-input`);
+                    const descriptionInput = document.querySelector(`[data-day="${day}"][data-time="${time}"].sol-description`);
+                    
+                    if (subjectSelect) {
+                        const subject = subjectSelect.value;
+                        const title = titleInput.value;
+                        const description = descriptionInput.value;
+                        
+                        if (subject || title || description) {
+                            weekData[weekKey] = {
+                                subject: subject,
+                                title: title,
+                                description: description
+                            };
+                        }
+                    }
+                });
+            });
+            
+            // Simulate saving
+            localStorage.setItem('weekData', JSON.stringify(weekData));
+            showMessage('weekSaveStatus', 'Wochenplanung erfolgreich gespeichert!', false);
+        }
+
+        // Load Data
+        function loadData() {
+            // Load schedule data
+            const savedSchedule = localStorage.getItem('scheduleData');
+            if (savedSchedule) {
+                scheduleData = JSON.parse(savedSchedule);
+                
+                // Fill the form with existing data
+                Object.keys(scheduleData).forEach(day => {
+                    Object.keys(scheduleData[day]).forEach(time => {
+                        const select = document.querySelector(`[data-day="${day}"][data-time="${time}"]`);
+                        if (select) {
+                            select.value = scheduleData[day][time];
+                            const selectedSubject = subjects.find(s => s.value === scheduleData[day][time]);
+                            if (selectedSubject) {
+                                select.className = 'subject-select ' + selectedSubject.class;
+                            }
+                        }
+                    });
+                });
+            }
+
+            // Load week data
+            const savedWeek = localStorage.getItem('weekData');
+            if (savedWeek) {
+                weekData = JSON.parse(savedWeek);
+            }
+
+            // Load tasks
+            const savedTasks = localStorage.getItem('currentTasks');
+            if (savedTasks) {
+                currentTasks = JSON.parse(savedTasks);
+            }
         }
 
         // Modal Functions
@@ -645,7 +1349,100 @@
         function closeTaskModal() {
             document.getElementById('taskModal').classList.remove('show');
             document.body.style.overflow = '';
+            clearTaskForm();
+        }
+
+        function clearTaskForm() {
             document.getElementById('taskForm').reset();
+            selectedFiles = [];
+            addedLinks = [];
+            displaySelectedFiles();
+            displayAddedLinks();
+        }
+
+        // File handling
+        function displaySelectedFiles() {
+            const container = document.getElementById('selectedFilesList');
+            container.innerHTML = '';
+            
+            selectedFiles.forEach((file, index) => {
+                const fileDiv = document.createElement('div');
+                fileDiv.className = 'file-item';
+                fileDiv.innerHTML = `
+                    <div class="file-info">
+                        <span>${getFileIcon(file.name)}</span>
+                        <span>${file.name}</span>
+                    </div>
+                    <span class="remove-file" onclick="removeSelectedFile(${index})">×</span>
+                `;
+                container.appendChild(fileDiv);
+            });
+        }
+
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            switch (ext) {
+                case 'pdf': return '📄';
+                case 'doc':
+                case 'docx': return '📝';
+                case 'xls':
+                case 'xlsx': return '📊';
+                case 'ppt':
+                case 'pptx': return '📽️';
+                case 'jpg':
+                case 'jpeg':
+                case 'png':
+                case 'gif': return '🖼️';
+                default: return '📎';
+            }
+        }
+
+        function removeSelectedFile(index) {
+            selectedFiles.splice(index, 1);
+            displaySelectedFiles();
+        }
+
+        // Link handling
+        function addLink() {
+            const linkInput = document.getElementById('taskLink');
+            const url = linkInput.value.trim();
+            
+            if (url && isValidUrl(url)) {
+                addedLinks.push(url);
+                linkInput.value = '';
+                displayAddedLinks();
+            } else if (url) {
+                alert('Bitte geben Sie eine gültige URL ein (z.B. https://example.com)');
+            }
+        }
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function displayAddedLinks() {
+            const container = document.getElementById('addedLinksList');
+            container.innerHTML = '';
+            
+            addedLinks.forEach((link, index) => {
+                const linkDiv = document.createElement('div');
+                linkDiv.className = 'link-item';
+                linkDiv.innerHTML = `
+                    <a href="${link}" target="_blank" title="${link}">${new URL(link).hostname}</a>
+                    <span class="remove-file" onclick="removeAddedLink(${index})">×</span>
+                `;
+                container.appendChild(linkDiv);
+            });
+        }
+
+        function removeAddedLink(index) {
+            addedLinks.splice(index, 1);
+            displayAddedLinks();
         }
 
         // Task Form Submit
@@ -668,22 +1465,18 @@
                 title: title,
                 description: description,
                 createdAt: new Date().toLocaleDateString('de-DE'),
-                files: [],
-                links: []
+                files: selectedFiles.map(f => f.name),
+                links: [...addedLinks]
             };
             
             currentTasks.push(newTask);
+            localStorage.setItem('currentTasks', JSON.stringify(currentTasks));
+            
             displayTasks();
             closeTaskModal();
             
             // Show success message
-            const statusElement = document.getElementById('taskSaveStatus');
-            statusElement.textContent = 'Auftrag erfolgreich erstellt!';
-            statusElement.className = 'status-message status-success';
-            statusElement.style.display = 'block';
-            setTimeout(() => {
-                statusElement.style.display = 'none';
-            }, 3000);
+            showMessage('taskSaveStatus', 'Auftrag erfolgreich erstellt!', false);
         });
 
         // Display Tasks on Pinboard
@@ -708,7 +1501,7 @@
                 card.className = 'pin-card';
                 card.innerHTML = `
                     <div class="pin-header">
-                        <span class="pin-subject">${task.subject}</span>
+                        <span class="pin-subject" style="background: ${getSubjectColor(task.subject)}">${task.subject}</span>
                         <div class="pin-actions">
                             <button class="pin-action-btn" onclick="deleteTask(${task.id})" title="Löschen">
                                 🗑️
@@ -717,19 +1510,77 @@
                     </div>
                     <h3 class="pin-title">${task.title}</h3>
                     <p class="pin-description">${task.description}</p>
+                    
+                    ${task.files.length > 0 || task.links.length > 0 ? `
+                        <div class="pin-materials">
+                            <h4>Materialien</h4>
+                            <div class="material-tags">
+                                ${task.files.map(file => 
+                                    `<span class="material-tag">${getFileIcon(file)} ${file}</span>`
+                                ).join('')}
+                                ${task.links.map(link => 
+                                    `<a href="${link}" target="_blank" class="material-tag">🔗 ${new URL(link).hostname}</a>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
                     <div class="pin-date">📅 ${task.createdAt}</div>
                 `;
                 pinboard.appendChild(card);
             });
         }
 
+        function getSubjectColor(subject) {
+            const colors = {
+                'Deutsch': '#4299e1',
+                'Französisch': '#3182ce',
+                'Englisch': '#2c5282',
+                'Mathematik': '#ed8936',
+                'Natur & Technik': '#dd6b20',
+                'Medien & Informatik': '#17a2b8',
+                'Räume, Zeiten, Gesellschaften': '#e53e3e',
+                'Ethik, Religion, Gemeinschaft': '#c53030',
+                'Wirtschaft, Arbeit, Haushalt': '#9c4221',
+                'Musik': '#805ad5',
+                'Textiles- und Technisches Gestalten': '#6b46c1',
+                'Bildnisches Gestalten': '#553c9a',
+                'Bewegung und Sport': '#ecc94b',
+                'Individuelle Vertiefung': '#38b2ac',
+                'Lernatelier': '#319795'
+            };
+            return colors[subject] || '#667eea';
+        }
+
         // Delete Task
         function deleteTask(taskId) {
             if (confirm('Möchten Sie diesen Auftrag wirklich löschen?')) {
                 currentTasks = currentTasks.filter(task => task.id !== taskId);
+                localStorage.setItem('currentTasks', JSON.stringify(currentTasks));
                 displayTasks();
             }
         }
+
+        // Utility function to show messages
+        function showMessage(elementId, message, isError) {
+            const element = document.getElementById(elementId);
+            if (message) {
+                element.textContent = message;
+                element.className = isError ? 'status-message status-error' : 'status-message status-success';
+                element.style.display = 'block';
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 3000);
+            } else {
+                element.style.display = 'none';
+            }
+        }
+
+        // File input handling
+        document.getElementById('taskFiles').addEventListener('change', function(e) {
+            selectedFiles = Array.from(e.target.files);
+            displaySelectedFiles();
+        });
 
         // Close modal when clicking outside
         document.getElementById('taskModal').addEventListener('click', function(e) {
