@@ -436,6 +436,328 @@
             color: white;
             border-radius: 10px;
         }
+        /* Aufgaben-Tab Styles */
+        .task-form-container {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 2px solid #e2e8f0;
+        }
+
+        .task-form-container h3 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .task-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .task-form .form-group {
+            margin-bottom: 0;
+        }
+
+        .task-form .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .task-form .form-group input,
+        .task-form .form-group select,
+        .task-form .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .task-form .form-group input:focus,
+        .task-form .form-group select:focus,
+        .task-form .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .material-upload {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .upload-btn {
+            background: #48bb78;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            align-self: flex-start;
+        }
+
+        .upload-btn:hover {
+            background: #38a169;
+        }
+
+        .selected-files {
+            margin-top: 10px;
+        }
+
+        .file-item {
+            background: #e6fffa;
+            color: #234e52;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item .remove-file {
+            color: #e53e3e;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .link-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .link-input input {
+            flex: 1;
+        }
+
+        .add-link-btn {
+            background: #4299e1;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .add-link-btn:hover {
+            background: #3182ce;
+        }
+
+        .added-links {
+            margin-top: 10px;
+        }
+
+        .link-item {
+            background: #ebf8ff;
+            color: #2a69ac;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .link-item a {
+            color: #2a69ac;
+            text-decoration: none;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .link-item a:hover {
+            text-decoration: underline;
+        }
+
+        .link-item .remove-link {
+            color: #e53e3e;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .create-task-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .create-task-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+
+        .cancel-btn {
+            background: #a0aec0;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .cancel-btn:hover {
+            background: #718096;
+        }
+
+        .tasks-list-container {
+            margin-top: 40px;
+        }
+
+        .tasks-list-container h3 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .tasks-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .task-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .task-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .task-subject {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .task-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin: 10px 0;
+        }
+
+        .task-description {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .task-materials {
+            margin-top: 15px;
+        }
+
+        .task-materials h4 {
+            color: #4a5568;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .material-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .material-item {
+            background: #e6fffa;
+            color: #234e52;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-decoration: none;
+        }
+
+        .material-item:hover {
+            background: #b2f5ea;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .edit-task-btn {
+            background: #4299e1;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .edit-task-btn:hover {
+            background: #3182ce;
+        }
+
+        .delete-task-btn {
+            background: #e53e3e;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .delete-task-btn:hover {
+            background: #c53030;
+        }
+
+        .task-date {
+            color: #718096;
+            font-size: 12px;
+            margin-top: 10px;
+        }
 
         @media (max-width: 768px) {
             .week-schedule {
@@ -633,6 +955,8 @@
         window.storage = storage;
         window.scheduleData = {};
         window.weekData = {};
+        window.selectedFiles = [];
+        window.addedLinks = [];
 
         // Login Form Event
         document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
@@ -690,6 +1014,12 @@
             // Load week schedule when switching to stundenplan tab
             if (tabName === 'stundenplan') {
                 initializeWeekSchedule();
+            }
+            
+            // Load tasks when switching to aufgaben tab
+            if (tabName === 'aufgaben') {
+                loadTasks();
+                initializeTaskForm();
             }
         };
 
@@ -1055,6 +1385,277 @@
                 element.style.display = 'none';
             }
         }
+         // Task Management Functions
+        function initializeTaskForm() {
+            const taskFiles = document.getElementById('taskFiles');
+            
+            taskFiles.addEventListener('change', function() {
+                window.selectedFiles = Array.from(this.files);
+                displaySelectedFiles();
+            });
+            
+            const taskForm = document.getElementById('taskForm');
+            taskForm.addEventListener('submit', handleTaskSubmit);
+        }
+
+        function displaySelectedFiles() {
+            const container = document.getElementById('selectedFiles');
+            container.innerHTML = '';
+            
+            window.selectedFiles.forEach((file, index) => {
+                const fileDiv = document.createElement('div');
+                fileDiv.className = 'file-item';
+                fileDiv.innerHTML = `
+                    <span>📎 ${file.name}</span>
+                    <span class="remove-file" onclick="removeSelectedFile(${index})">×</span>
+                `;
+                container.appendChild(fileDiv);
+            });
+        }
+
+        window.removeSelectedFile = (index) => {
+            window.selectedFiles.splice(index, 1);
+            displaySelectedFiles();
+            
+            // Update file input
+            const taskFiles = document.getElementById('taskFiles');
+            const dt = new DataTransfer();
+            window.selectedFiles.forEach(file => dt.items.add(file));
+            taskFiles.files = dt.files;
+        };
+
+        window.addLink = () => {
+            const linkInput = document.getElementById('taskLink');
+            const url = linkInput.value.trim();
+            
+            if (url && isValidUrl(url)) {
+                window.addedLinks.push(url);
+                linkInput.value = '';
+                displayAddedLinks();
+            } else if (url) {
+                alert('Bitte geben Sie eine gültige URL ein (z.B. https://example.com)');
+            }
+        };
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function displayAddedLinks() {
+            const container = document.getElementById('addedLinks');
+            container.innerHTML = '';
+            
+            window.addedLinks.forEach((link, index) => {
+                const linkDiv = document.createElement('div');
+                linkDiv.className = 'link-item';
+                linkDiv.innerHTML = `
+                    <a href="${link}" target="_blank" title="${link}">${link}</a>
+                    <span class="remove-link" onclick="removeAddedLink(${index})">×</span>
+                `;
+                container.appendChild(linkDiv);
+            });
+        }
+
+        window.removeAddedLink = (index) => {
+            window.addedLinks.splice(index, 1);
+            displayAddedLinks();
+        };
+
+        async function handleTaskSubmit(e) {
+            e.preventDefault();
+            
+            const subject = document.getElementById('taskSubject').value;
+            const title = document.getElementById('taskTitle').value;
+            const description = document.getElementById('taskDescription').value;
+            
+            if (!subject || !title || !description) {
+                showMessage('taskSaveStatus', 'Bitte füllen Sie alle Pflichtfelder aus.', true);
+                return;
+            }
+            
+            try {
+                const taskId = Date.now().toString();
+                const task = {
+                    id: taskId,
+                    subject: subject,
+                    title: title,
+                    description: description,
+                    createdAt: new Date().toISOString(),
+                    files: [],
+                    links: [...window.addedLinks]
+                };
+                
+                // Upload files
+                for (const file of window.selectedFiles) {
+                    const fileName = `${taskId}_${Date.now()}_${file.name}`;
+                    const fileStorageRef = storageRef(storage, `taskFiles/${fileName}`);
+                    
+                    await uploadBytes(fileStorageRef, file);
+                    const downloadURL = await getDownloadURL(fileStorageRef);
+                    
+                    task.files.push({
+                        name: file.name,
+                        url: downloadURL,
+                        id: fileName
+                    });
+                }
+                
+                // Save task to database
+                await set(ref(database, `tasks/${taskId}`), task);
+                
+                showMessage('taskSaveStatus', 'Auftrag erfolgreich erstellt!', false);
+                clearTaskForm();
+                loadTasks();
+                
+            } catch (error) {
+                showMessage('taskSaveStatus', 'Fehler beim Erstellen des Auftrags: ' + error.message, true);
+            }
+        }
+
+        window.clearTaskForm = () => {
+            document.getElementById('taskForm').reset();
+            window.selectedFiles = [];
+            window.addedLinks = [];
+            displaySelectedFiles();
+            displayAddedLinks();
+        };
+
+        async function loadTasks() {
+            try {
+                const snapshot = await get(child(ref(database), 'tasks'));
+                const tasksList = document.getElementById('tasksList');
+                
+                if (snapshot.exists()) {
+                    const tasks = snapshot.val();
+                    const taskArray = Object.values(tasks).sort((a, b) => 
+                        new Date(b.createdAt) - new Date(a.createdAt)
+                    );
+                    
+                    tasksList.innerHTML = '';
+                    
+                    taskArray.forEach(task => {
+                        const taskCard = createTaskCard(task);
+                        tasksList.appendChild(taskCard);
+                    });
+                } else {
+                    tasksList.innerHTML = '<p class="placeholder-content">Noch keine Aufträge erstellt.</p>';
+                }
+                
+            } catch (error) {
+                console.error('Fehler beim Laden der Aufträge:', error);
+            }
+        }
+
+        function createTaskCard(task) {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            
+            const createdDate = new Date(task.createdAt).toLocaleDateString('de-DE');
+            
+            card.innerHTML = `
+                <div class="task-header">
+                    <span class="task-subject">${task.subject}</span>
+                    <div class="task-actions">
+                        <button class="edit-task-btn" onclick="editTask('${task.id}')">Bearbeiten</button>
+                        <button class="delete-task-btn" onclick="deleteTask('${task.id}')">Löschen</button>
+                    </div>
+                </div>
+                <h3 class="task-title">${task.title}</h3>
+                <p class="task-description">${task.description}</p>
+                
+                ${task.files.length > 0 || task.links.length > 0 ? `
+                    <div class="task-materials">
+                        <h4>Materialien:</h4>
+                        <div class="material-list">
+                            ${task.files.map(file => 
+                                `<a href="${file.url}" target="_blank" class="material-item">📎 ${file.name}</a>`
+                            ).join('')}
+                            ${task.links.map(link => 
+                                `<a href="${link}" target="_blank" class="material-item">🔗 ${new URL(link).hostname}</a>`
+                            ).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+                
+                <div class="task-date">Erstellt am: ${createdDate}</div>
+            `;
+            
+            return card;
+        }
+
+        window.deleteTask = async (taskId) => {
+            if (!confirm('Möchten Sie diesen Auftrag wirklich löschen?')) {
+                return;
+            }
+            
+            try {
+                // Get task data to delete files
+                const taskSnapshot = await get(child(ref(database), `tasks/${taskId}`));
+                if (taskSnapshot.exists()) {
+                    const task = taskSnapshot.val();
+                    
+                    // Delete files from storage
+                    for (const file of task.files || []) {
+                        try {
+                            const fileStorageRef = storageRef(storage, `taskFiles/${file.id}`);
+                            await deleteObject(fileStorageRef);
+                        } catch (error) {
+                            console.warn('Datei konnte nicht gelöscht werden:', error);
+                        }
+                    }
+                }
+                
+                // Delete task from database
+                await set(ref(database, `tasks/${taskId}`), null);
+                
+                showMessage('taskSaveStatus', 'Auftrag erfolgreich gelöscht!', false);
+                loadTasks();
+                
+            } catch (error) {
+                showMessage('taskSaveStatus', 'Fehler beim Löschen des Auftrags: ' + error.message, true);
+            }
+        };
+
+        window.editTask = async (taskId) => {
+            try {
+                const snapshot = await get(child(ref(database), `tasks/${taskId}`));
+                if (snapshot.exists()) {
+                    const task = snapshot.val();
+                    
+                    // Fill form with task data
+                    document.getElementById('taskSubject').value = task.subject;
+                    document.getElementById('taskTitle').value = task.title;
+                    document.getElementById('taskDescription').value = task.description;
+                    
+                    // Set links
+                    window.addedLinks = [...(task.links || [])];
+                    displayAddedLinks();
+                    
+                    // Clear files (user needs to re-upload)
+                    window.selectedFiles = [];
+                    displaySelectedFiles();
+                    
+                    // Change form behavior for editing
+                    const form = document.getElementById('taskForm');
+                    form.dataset.editingId = taskId;
+                    
+                    const submitBtn = form.querySelector('.create-task-btn');
+                    submitBtn.textContent = 'Auftrag aktualisieren';
+                    
+                    // Scroll to form
+                    document.querySelector('.task-form-container').scrollIntoView({ behavior: 'smooth' });
+                    
+                    showMessage('taskSaveStatus', 'Auftrag wird bearbeitet. Dateien müssen neu hochgeladen werden.', false);
+                }
+            } catch (error) {
+                showMessage('taskSaveStatus', 'Fehler beim Laden des Auftrags: ' + error.message, true);
+            }
+        };
     </script>
 </body>
 </html>
