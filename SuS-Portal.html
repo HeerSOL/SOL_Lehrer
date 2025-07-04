@@ -900,7 +900,7 @@
                             <h4>Materialien</h4>
                             <div class="material-tags">
                                 ${task.files.map(file => 
-                                    `<span class="material-tag">${getFileIcon(file)} ${file}</span>`
+                                    `<a href="${file.url}" target="_blank" class="material-tag" title="Datei herunterladen">${getFileIcon(file.name)} ${file.name}</a>`
                                 ).join('')}
                                 ${task.links.map(link => 
                                     `<a href="${link}" target="_blank" class="material-tag">🔗 ${new URL(link).hostname}</a>`
@@ -1093,7 +1093,7 @@
                         <h4>📎 Materialien</h4>
                         <div class="material-tags">
                             ${lessonInfo.files.map(file => 
-                                `<a href="${file.url}" target="_blank" class="material-tag">${getFileIcon(file.name)} ${file.name}</a>`
+                                `<a href="${file.url}" target="_blank" class="material-tag" title="Datei herunterladen">${getFileIcon(file.name)} ${file.name}</a>`
                             ).join('')}
                         </div>
                     </div>
